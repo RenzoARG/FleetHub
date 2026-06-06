@@ -875,7 +875,7 @@ let importedFleetData = null;
 
 // Filter state
 let filterFaction = 'all';
-let filterSize = 'all';
+let filterHullSize = 'all';
 let filterSearch = '';
 
 
@@ -965,10 +965,10 @@ function filterFactionBtn(btn) {
   renderShipList();
 }
 
-function filterSize(btn) {
+function filterHullSize(btn) {
   document.querySelectorAll('.filter-btn[data-size]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  filterSize = btn.dataset.size;
+  filterHullSize = btn.dataset.size;
   renderShipList();
 }
 
@@ -980,7 +980,7 @@ function filterShips() {
 function renderShipList() {
   const filtered = SHIPS.filter(s => {
     if (filterFaction !== 'all' && s.faction !== filterFaction) return false;
-    if (filterSize !== 'all' && s.hull_size !== filterSize) return false;
+    if (filterHullSize !== 'all' && s.hull_size !== filterHullSize) return false;
     if (filterSearch && !s.name.toLowerCase().includes(filterSearch) && !s.faction.toLowerCase().includes(filterSearch)) return false;
     return true;
   });
