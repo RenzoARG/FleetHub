@@ -597,7 +597,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
   <nav>
     <button class="nav-btn active" onclick="showView('builder')" id="nav-builder">// Build</button>
     <button class="nav-btn" onclick="showView('share')" id="nav-share">// Share</button>
-    <button class="nav-btn" onclick="showView('import')" id="nav-import">// Import</button><button class="nav-btn" onclick="showView('community')" id="nav-community">// Community</button>
+    <button class="nav-btn" onclick="showView('import')" id="nav-import">// Import</button>
   </nav>
 </header>
 
@@ -857,11 +857,6 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
   </div>
 </div>
 
-
-<div class="view" id="view-community">
-<div class="panel"><div class="panel-header"><div class="panel-title">Community Fleets</div></div>
-<div class="panel-body" id="community-list">Loading...</div></div>
-</div>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -875,26 +870,13 @@ let importedFleetData = null;
 
 // Filter state
 let filterFaction = 'all';
-let filterHullSize = 'all';
+let filterSize = 'all';
 let filterSearch = '';
-
-
-let COMMUNITY=[];
-async function loadCommunity(){
- try{
-  const r=await fetch('./community.json');
-  COMMUNITY=await r.json();
-  const el=document.getElementById('community-list');
-  if(el){
-    el.innerHTML=COMMUNITY.map(f=>`<div class="fleet-slot"><div><strong>${f.name}</strong><br>${f.author||''}<br>${f.description||''}</div></div>`).join('');
-  }
- }catch(e){}
-}
 
 // ==================== INIT ====================
 async function init() {
   try {
-    const r = await fetch('./ships.json');
+    const r = await fetch('data/ships.json');
     SHIPS = await r.json();
   } catch(e) {
     // Fallback: inline minimal data if running without server
@@ -965,10 +947,10 @@ function filterFactionBtn(btn) {
   renderShipList();
 }
 
-function filterHullSize(btn) {
+function filterSize(btn) {
   document.querySelectorAll('.filter-btn[data-size]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  filterHullSize = btn.dataset.size;
+  filterSize = btn.dataset.size;
   renderShipList();
 }
 
@@ -980,7 +962,7 @@ function filterShips() {
 function renderShipList() {
   const filtered = SHIPS.filter(s => {
     if (filterFaction !== 'all' && s.faction !== filterFaction) return false;
-    if (filterHullSize !== 'all' && s.hull_size !== filterHullSize) return false;
+    if (filterSize !== 'all' && s.hull_size !== filterSize) return false;
     if (filterSearch && !s.name.toLowerCase().includes(filterSearch) && !s.faction.toLowerCase().includes(filterSearch)) return false;
     return true;
   });
@@ -1348,7 +1330,6 @@ function exportJSON() {
 
 // ==================== BOOT ====================
 init();
-loadCommunity();
 </script>
 </body>
 </html>
