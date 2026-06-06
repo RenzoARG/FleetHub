@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FleetHub — Starsector Fleet Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c0f;
+  --bg2: #0e1116;
+  --bg3: #13171e;
+  --bg4: #1a1f28;
+  --border: #1e2530;
+  --border2: #2a3344;
+  --accent: #e8a838;
+  --accent2: #c47f1a;
+  --accent-dim: rgba(232,168,56,0.12);
+  --accent-dim2: rgba(232,168,56,0.06);
+  --teal: #3ac4b0;
+  --teal-dim: rgba(58,196,176,0.12);
+  --red: #d44;
+  --text: #c8cdd6;
+  --text2: #7a8494;
+  --text3: #4a5262;
+  --capital: #e05050;
+  --cruiser: #e07830;
+  --destroyer: #d4c040;
+  --frigate: #50b060;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-ui: 'Rajdhani', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* SCANLINE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* HEADER */
+header {
+  border-bottom: 1px solid var(--border2);
+  background: var(--bg2);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-bracket { color: var(--text3); font-size: 22px; }
+.logo-sub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+nav { display: flex; gap: 4px; }
+.nav-btn {
+  background: none;
+  border: none;
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-btn:hover { color: var(--text); background: var(--bg4); }
+.nav-btn.active { color: var(--accent); background: var(--accent-dim); }
+
+/* STATUS BAR */
+.statusbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.sb-item { display: flex; align-items: center; gap: 6px; }
+.sb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* MAIN LAYOUT */
+main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
+
+/* PANELS */
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.panel-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.panel-body { padding: 16px; }
+
+/* BUILDER LAYOUT */
+.builder-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* SEARCH & FILTER */
+.search-wrap { position: relative; }
+.search-input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 8px 12px 8px 32px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--text3); }
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text3);
+  font-size: 13px;
+  pointer-events: none;
+}
+.filter-row {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text2);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* SHIP LIST */
+.ship-list { margin-top: 12px; max-height: 560px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.ship-list::-webkit-scrollbar { width: 4px; }
+.ship-list::-webkit-scrollbar-track { background: var(--bg3); }
+.ship-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.ship-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: border-color 0.12s, background 0.12s;
+  user-select: none;
+}
+.ship-item:hover { border-color: var(--border2); background: var(--bg4); }
+.ship-item:active { border-color: var(--accent); }
+
+.ship-item-left { display: flex; flex-direction: column; gap: 2px; }
+.ship-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+.ship-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+}
+.ship-faction {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+.hull-tag {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 1px 5px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+.hull-capital { color: var(--capital); border: 1px solid var(--capital); background: rgba(224,80,80,0.08); }
+.hull-cruiser { color: var(--cruiser); border: 1px solid var(--cruiser); background: rgba(224,120,48,0.08); }
+.hull-destroyer { color: var(--destroyer); border: 1px solid var(--destroyer); background: rgba(212,192,64,0.08); }
+.hull-frigate { color: var(--frigate); border: 1px solid var(--frigate); background: rgba(80,176,96,0.08); }
+
+.ship-item-right { display: flex; align-items: center; gap: 8px; }
+.dp-badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent);
+  min-width: 28px;
+  text-align: right;
+}
+.dp-label { font-size: 9px; color: var(--text3); }
+.add-btn {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--teal);
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s;
+  line-height: 1;
+}
+.add-btn:hover { background: var(--teal-dim); border-color: var(--teal); }
+
+/* FLEET ROSTER */
+.fleet-slot {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  animation: slideIn 0.15s ease;
+}
+@keyframes slideIn { from { opacity:0; transform: translateX(-8px); } to { opacity:1; transform: none; } }
+.fleet-roster { display: flex; flex-direction: column; gap: 4px; max-height: 480px; overflow-y: auto; }
+.fleet-roster::-webkit-scrollbar { width: 4px; }
+.fleet-roster::-webkit-scrollbar-track { background: var(--bg3); }
+.fleet-roster::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.fleet-slot-name { font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--text); flex: 1; }
+.fleet-slot-dp { font-family: var(--font-mono); font-size: 11px; color: var(--accent); white-space: nowrap; }
+.qty-control { display: flex; align-items: center; gap: 4px; }
+.qty-btn {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text2);
+  font-size: 13px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.qty-btn:hover { color: var(--text); border-color: var(--accent); }
+.qty-btn.remove:hover { color: var(--red); border-color: var(--red); }
+.qty-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text);
+  min-width: 16px;
+  text-align: center;
+}
+
+/* FLEET EMPTY STATE */
+.fleet-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  border: 1px dashed var(--border);
+  border-radius: 3px;
+}
+.fleet-empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.3; }
+
+/* STATS PANEL */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 10px;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--accent);
+  font-weight: 400;
+}
+.stat-value.warn { color: #e07030; }
+.stat-value.good { color: var(--teal); }
+.stat-bar-wrap { margin-top: 4px; height: 2px; background: var(--border); border-radius: 1px; }
+.stat-bar { height: 2px; background: var(--accent); border-radius: 1px; transition: width 0.3s ease; }
+.stat-bar.good { background: var(--teal); }
+
+/* FLEET INFO INPUTS */
+.fleet-info { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.info-input {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.info-input:focus { border-color: var(--accent); }
+.info-input::placeholder { color: var(--text3); }
+textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
+
+/* CODE SYSTEM */
+.code-display {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-align: center;
+  word-break: break-all;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.code-display.empty { color: var(--text3); font-size: 11px; letter-spacing: 0.1em; }
+
+.btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover { border-color: var(--text2); color: var(--text); }
+.btn.primary { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.btn.primary:hover { background: rgba(232,168,56,0.2); }
+.btn.success { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
+.btn.success:hover { background: rgba(58,196,176,0.2); }
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.danger:hover { background: rgba(221,68,68,0.1); }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* IMPORT SECTION */
+.import-wrap { display: flex; gap: 8px; }
+.import-input {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  letter-spacing: 0.08em;
+  transition: border-color 0.15s;
+}
+.import-input:focus { border-color: var(--teal); }
+.import-input::placeholder { color: var(--text3); }
+
+/* IMPORTED FLEET VIEW */
+.imported-fleet {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.imported-fleet.visible { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+.fleet-view-header {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.fleet-view-header::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.fleet-view-name {
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.fleet-view-meta { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+.fleet-view-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.fleet-view-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--teal);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.2s;
+  z-index: 9998;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: none; }
+.toast.error { color: var(--red); border-color: var(--red); }
+
+/* SECTION HEADER */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+.section-line { flex: 1; height: 1px; background: var(--border); }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* OBJECTIVE SELECT */
+.obj-select {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  padding: 7px 10px;
+  outline: none;
+  cursor: pointer;
+  width: 100%;
+}
+.obj-select:focus { border-color: var(--accent); }
+
+/* SHIP COUNT SUMMARY */
+.composition-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.comp-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border: 1px solid;
+}
+.comp-pill.capital { color: var(--capital); border-color: var(--capital); background: rgba(224,80,80,0.07); }
+.comp-pill.cruiser { color: var(--cruiser); border-color: var(--cruiser); background: rgba(224,120,48,0.07); }
+.comp-pill.destroyer { color: var(--destroyer); border-color: var(--destroyer); background: rgba(212,192,64,0.07); }
+.comp-pill.frigate { color: var(--frigate); border-color: var(--frigate); background: rgba(80,176,96,0.07); }
+
+/* EMPTY FLEET WARNING */
+.fleet-warning {
+  padding: 10px 14px;
+  background: rgba(212,68,68,0.08);
+  border: 1px solid rgba(212,68,68,0.25);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #d44;
+  display: none;
+}
+.fleet-warning.visible { display: block; }
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .builder-grid { grid-template-columns: 300px 1fr 260px; }
+}
+@media (max-width: 900px) {
+  .builder-grid { grid-template-columns: 1fr; }
+  .fleet-view-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">
+      <span class="logo-bracket">[</span>FLEET<span style="color:var(--teal)">HUB</span><span class="logo-bracket">]</span>
+    </div>
+    <div class="logo-sub">Starsector Fleet Library</div>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showView('builder')" id="nav-builder">// Build</button>
+    <button class="nav-btn" onclick="showView('share')" id="nav-share">// Share</button>
+    <button class="nav-btn" onclick="showView('import')" id="nav-import">// Import</button><button class="nav-btn" onclick="showView('community')" id="nav-community">// Community</button>
+  </nav>
+</header>
+
+<div class="statusbar">
+  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.1</span></div>
+  <div class="sb-item">STARSECTOR 0.97a</div>
+  <div class="sb-item" id="sb-shipcount">SHIPS LOADED: —</div>
+  <div class="sb-item">VANILLA ONLY</div>
+</div>
+
+<main>
+
+<!-- ===== BUILDER VIEW ===== -->
+<div class="view active" id="view-builder">
+  <div class="section-header">
+    <span class="section-title">Fleet Constructor</span>
+    <div class="section-line"></div>
+    <button class="btn danger" onclick="clearFleet()">✕ Clear Fleet</button>
+  </div>
+
+  <div class="builder-grid">
+
+    <!-- SHIP BROWSER -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// Ship Database</span>
+          <span id="visible-count" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)"></span>
+        </div>
+        <div class="panel-body">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input class="search-input" id="ship-search" placeholder="Search ships..." oninput="filterShips()">
+          </div>
+          <div class="filter-row" id="faction-filters"></div>
+          <div class="filter-row" style="margin-top:4px;">
+            <button class="filter-btn active" data-size="all" onclick="filterSize(this)">All</button>
+            <button class="filter-btn" data-size="capital" onclick="filterSize(this)">Capital</button>
+            <button class="filter-btn" data-size="cruiser" onclick="filterSize(this)">Cruiser</button>
+            <button class="filter-btn" data-size="destroyer" onclick="filterSize(this)">Destroyer</button>
+            <button class="filter-btn" data-size="frigate" onclick="filterSize(this)">Frigate</button>
+          </div>
+          <div class="ship-list" id="ship-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLEET ROSTER -->
+    <div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">// Fleet Roster</span>
+          <span id="fleet-ship-count" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">0 ships</span>
+        </div>
+        <div class="panel-body">
+          <div class="fleet-info">
+            <input class="info-input" id="fleet-name" placeholder="Fleet name..." maxlength="48">
+            <input class="info-input" id="fleet-author" placeholder="Your callsign / author name..." maxlength="32">
+            <textarea class="info-input" id="fleet-desc" placeholder="Describe your fleet composition and strategy..." maxlength="280"></textarea>
+            <select class="obj-select" id="fleet-obj">
+              <option value="">Objective: Select...</option>
+              <option value="combat">Combat — Assault</option>
+              <option value="exploration">Exploration — Survey</option>
+              <option value="trade">Trade — Logistics</option>
+              <option value="mixed">Mixed — General Purpose</option>
+            </select>
+          </div>
+          <div class="divider"></div>
+          <div id="fleet-roster-container">
+            <div class="fleet-empty" id="fleet-empty">
+              <div class="fleet-empty-icon">⊞</div>
+              NO SHIPS ASSIGNED<br>SELECT FROM DATABASE
+            </div>
+            <div class="fleet-roster" id="fleet-roster" style="display:none;"></div>
+          </div>
+          <div class="composition-pills" id="composition-pills"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div>
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-header"><span class="panel-title">// Combat Stats</span></div>
+        <div class="panel-body">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-label">Deploy Points</div>
+              <div class="stat-value" id="stat-dp">0</div>
+              <div class="stat-bar-wrap"><div class="stat-bar" id="bar-dp" style="width:0%"></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Ships</div>
+              <div class="stat-value" id="stat-ships">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:12px;">
+        <div class="panel-header"><span class="panel-title">// Logistics</span></div>
+        <div class="panel-body">
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="stat-label">Fuel Cap.</div>
+              <div class="stat-value good" id="stat-fuel">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Cargo Cap.</div>
+              <div class="stat-value good" id="stat-cargo">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Crew Req.</div>
+              <div class="stat-value" id="stat-crew">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Supply/Day</div>
+              <div class="stat-value warn" id="stat-supply">0</div>
+            </div>
+            <div class="stat-card" style="grid-column:span 2;">
+              <div class="stat-label">Fleet Burn</div>
+              <div class="stat-value" id="stat-burn">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">// Export</span></div>
+        <div class="panel-body">
+          <div class="fleet-warning" id="fleet-warning">Fleet is empty — add ships first</div>
+          <div class="code-display empty" id="code-preview">[ generate code to share ]</div>
+          <div class="btn-row" style="margin-top:10px;">
+            <button class="btn primary" onclick="generateCode()" style="flex:1;">⚡ Generate Code</button>
+            <button class="btn success" onclick="copyCode()" style="flex:1;">⎘ Copy</button>
+          </div>
+          <div style="margin-top:8px;">
+            <button class="btn" onclick="exportJSON()" style="width:100%;">⊡ Export JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SHARE VIEW ===== -->
+<div class="view" id="view-share">
+  <div class="section-header">
+    <span class="section-title">Share Fleet</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;">
+    <div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">// About Fleet Codes</span></div>
+        <div class="panel-body" style="color:var(--text2);font-size:13px;line-height:1.7;">
+          <p style="margin-bottom:12px;">Fleet codes are <span style="color:var(--accent);font-family:var(--font-mono);">self-contained strings</span> that encode your entire fleet — ships, quantities, fleet name, and author — all in one compact block.</p>
+          <p style="margin-bottom:12px;">No server, no database. The code <em>is</em> the data. Share it anywhere: Discord, Reddit, forums, text messages.</p>
+          <p>The recipient pastes it in the <span style="color:var(--teal)">Import tab</span> and instantly sees your fleet reconstructed.</p>
+          <div class="divider"></div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:0.05em;">
+            FORMAT: BASE64(version + ships + metadata)<br>
+            CHECKSUM: CRC-style 4-char suffix<br>
+            MAX SHIPS: 30 unique hulls
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">// Current Fleet Code</span></div>
+        <div class="panel-body">
+          <div class="code-display empty" id="share-code-display">[ no fleet built yet ]</div>
+          <div class="btn-row" style="margin-top:12px;">
+            <button class="btn primary" onclick="generateCode(); syncShareView();" style="flex:1;">⚡ Generate</button>
+            <button class="btn success" onclick="copyCodeShare()" style="flex:1;">⎘ Copy Code</button>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">
+            <div id="share-meta">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;">
+        <div class="panel-header"><span class="panel-title">// Community Submission</span></div>
+        <div class="panel-body" style="color:var(--text2);font-size:12px;line-height:1.7;">
+          Want your fleet in the community library?<br><br>
+          Export your fleet code + JSON and submit a <span style="color:var(--accent)">Pull Request</span> to the FleetHub repository adding your file to <span style="font-family:var(--font-mono);color:var(--teal)">data/fleets/</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== IMPORT VIEW ===== -->
+<div class="view" id="view-import">
+  <div class="section-header">
+    <span class="section-title">Import Fleet</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div style="max-width:800px;">
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-header"><span class="panel-title">// Paste Fleet Code</span></div>
+      <div class="panel-body">
+        <div class="import-wrap">
+          <input class="import-input" id="import-input" placeholder="Paste fleet code here...">
+          <button class="btn primary" onclick="importFleet()">▶ Load Fleet</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text3);font-family:var(--font-mono);">
+          Paste a FleetHub code to reconstruct the fleet instantly.
+        </div>
+      </div>
+    </div>
+
+    <div class="imported-fleet" id="imported-fleet">
+      <div class="fleet-view-header" id="imported-header">
+        <div class="fleet-view-name" id="imported-name">—</div>
+        <div class="fleet-view-meta" id="imported-meta">—</div>
+        <div class="fleet-view-desc" id="imported-desc"></div>
+      </div>
+
+      <div class="fleet-view-grid">
+        <div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">// Ships</span></div>
+            <div class="panel-body">
+              <div class="fleet-roster" id="imported-roster" style="max-height:none;"></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="panel" style="margin-bottom:12px;">
+            <div class="panel-header"><span class="panel-title">// Fleet Stats</span></div>
+            <div class="panel-body">
+              <div class="stat-grid">
+                <div class="stat-card"><div class="stat-label">Deploy Points</div><div class="stat-value" id="imp-dp">0</div></div>
+                <div class="stat-card"><div class="stat-label">Ships</div><div class="stat-value" id="imp-ships">0</div></div>
+                <div class="stat-card"><div class="stat-label">Fuel Cap.</div><div class="stat-value good" id="imp-fuel">0</div></div>
+                <div class="stat-card"><div class="stat-label">Cargo Cap.</div><div class="stat-value good" id="imp-cargo">0</div></div>
+                <div class="stat-card"><div class="stat-label">Crew Req.</div><div class="stat-value" id="imp-crew">0</div></div>
+                <div class="stat-card"><div class="stat-label">Supply/Day</div><div class="stat-value warn" id="imp-supply">0</div></div>
+                <div class="stat-card" style="grid-column:span 2;"><div class="stat-label">Fleet Burn</div><div class="stat-value" id="imp-burn">—</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn success" onclick="loadImportedIntoBuilder()" style="width:100%;">⊕ Load into Builder</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="view" id="view-community">
+<div class="panel"><div class="panel-header"><div class="panel-title">Community Fleets</div></div>
+<div class="panel-body" id="community-list">Loading...</div></div>
+</div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== DATA ====================
+let SHIPS = [];
+let fleet = {};      // { shipId: count }
+let currentCode = '';
+let importedFleetData = null;
+
+// Filter state
+let filterFaction = 'all';
+let filterSize = 'all';
+let filterSearch = '';
+
+
+let COMMUNITY=[];
+async function loadCommunity(){
+ try{
+  const r=await fetch('./community.json');
+  COMMUNITY=await r.json();
+  const el=document.getElementById('community-list');
+  if(el){
+    el.innerHTML=COMMUNITY.map(f=>`<div class="fleet-slot"><div><strong>${f.name}</strong><br>${f.author||''}<br>${f.description||''}</div></div>`).join('');
+  }
+ }catch(e){}
+}
+
+// ==================== INIT ====================
+async function init() {
+  try {
+    const r = await fetch('./ships.json');
+    SHIPS = await r.json();
+  } catch(e) {
+    // Fallback: inline minimal data if running without server
+    SHIPS = getFallbackShips();
+  }
+  document.getElementById('sb-shipcount').textContent = `SHIPS LOADED: ${SHIPS.length}`;
+  buildFactionFilters();
+  renderShipList();
+}
+
+function getFallbackShips() {
+  return [
+    {id:"onslaught",name:"Onslaught",faction:"Hegemony",hull_size:"capital",dp:40,fuel:400,cargo:200,crew:1600,burn:8,supply_use:40,role:["combat"],description:"Heavy battleship."},
+    {id:"conquest",name:"Conquest",faction:"Independent",hull_size:"capital",dp:40,fuel:600,cargo:250,crew:1400,burn:9,supply_use:35,role:["combat"],description:"Fast battlecruiser."},
+    {id:"astral",name:"Astral",faction:"Tri-Tachyon",hull_size:"capital",dp:44,fuel:1200,cargo:150,crew:2200,burn:9,supply_use:45,role:["combat"],description:"Carrier capital."},
+    {id:"paragon",name:"Paragon",faction:"Tri-Tachyon",hull_size:"capital",dp:60,fuel:600,cargo:100,crew:2000,burn:8,supply_use:60,role:["combat"],description:"Pinnacle of ship design."},
+    {id:"champion",name:"Champion",faction:"Hegemony",hull_size:"cruiser",dp:22,fuel:300,cargo:100,crew:700,burn:9,supply_use:22,role:["combat"],description:"Heavy combat cruiser."},
+    {id:"aurora",name:"Aurora",faction:"Tri-Tachyon",hull_size:"cruiser",dp:22,fuel:400,cargo:80,crew:600,burn:14,supply_use:18,role:["combat"],description:"Fast attack cruiser."},
+    {id:"eagle",name:"Eagle",faction:"Persean League",hull_size:"cruiser",dp:24,fuel:250,cargo:120,crew:700,burn:9,supply_use:22,role:["combat"],description:"Heavy combat cruiser."},
+    {id:"falcon",name:"Falcon",faction:"Persean League",hull_size:"cruiser",dp:16,fuel:200,cargo:100,crew:500,burn:10,supply_use:16,role:["combat"],description:"Fast cruiser."},
+    {id:"venture",name:"Venture",faction:"Independent",hull_size:"cruiser",dp:10,fuel:500,cargo:1000,crew:400,burn:8,supply_use:10,role:["trade","exploration"],description:"Heavy freighter."},
+    {id:"prometheus",name:"Prometheus",faction:"Independent",hull_size:"cruiser",dp:10,fuel:2000,cargo:400,crew:300,burn:8,supply_use:12,role:["exploration"],description:"Tanker."},
+    {id:"medusa",name:"Medusa",faction:"Tri-Tachyon",hull_size:"destroyer",dp:14,fuel:150,cargo:60,crew:300,burn:14,supply_use:12,role:["combat"],description:"Phase destroyer."},
+    {id:"hammerhead",name:"Hammerhead",faction:"Independent",hull_size:"destroyer",dp:14,fuel:120,cargo:60,crew:300,burn:10,supply_use:10,role:["combat"],description:"Combat destroyer."},
+    {id:"sunder",name:"Sunder",faction:"Hegemony",hull_size:"destroyer",dp:12,fuel:100,cargo:50,crew:250,burn:9,supply_use:9,role:["combat"],description:"Energy destroyer."},
+    {id:"condor",name:"Condor",faction:"Independent",hull_size:"destroyer",dp:8,fuel:100,cargo:60,crew:250,burn:9,supply_use:8,role:["combat"],description:"Carrier destroyer."},
+    {id:"shepherd",name:"Shepherd",faction:"Independent",hull_size:"destroyer",dp:4,fuel:80,cargo:80,crew:80,burn:9,supply_use:4,role:["trade","exploration"],description:"Utility ship."},
+    {id:"wolf",name:"Wolf",faction:"Persean League",hull_size:"frigate",dp:6,fuel:80,cargo:40,crew:100,burn:12,supply_use:5,role:["combat"],description:"Fast frigate."},
+    {id:"tempest",name:"Tempest",faction:"Tri-Tachyon",hull_size:"frigate",dp:10,fuel:100,cargo:30,crew:150,burn:14,supply_use:7,role:["combat"],description:"Phase frigate."},
+    {id:"hound",name:"Hound",faction:"Independent",hull_size:"frigate",dp:3,fuel:100,cargo:100,crew:50,burn:10,supply_use:2,role:["trade"],description:"Light freighter."},
+    {id:"lasher",name:"Lasher",faction:"Hegemony",hull_size:"frigate",dp:7,fuel:80,cargo:40,crew:120,burn:10,supply_use:5,role:["combat"],description:"Combat frigate."},
+    {id:"ox",name:"Ox",faction:"Independent",hull_size:"frigate",dp:4,fuel:50,cargo:30,crew:40,burn:16,supply_use:3,role:["exploration","trade"],description:"Tug."}
+  ];
+}
+
+// ==================== UI ====================
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.getElementById('nav-' + v).classList.add('active');
+  if (v === 'share') syncShareView();
+}
+
+function toast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ==================== SHIP LIST ====================
+function buildFactionFilters() {
+  const factions = [...new Set(SHIPS.map(s => s.faction))].sort();
+  const container = document.getElementById('faction-filters');
+  let html = `<button class="filter-btn active" data-faction="all" onclick="filterFactionBtn(this)">All Factions</button>`;
+  factions.forEach(f => {
+    html += `<button class="filter-btn" data-faction="${f}" onclick="filterFactionBtn(this)">${f}</button>`;
+  });
+  container.innerHTML = html;
+}
+
+function filterFactionBtn(btn) {
+  document.querySelectorAll('#faction-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterFaction = btn.dataset.faction;
+  renderShipList();
+}
+
+function filterSize(btn) {
+  document.querySelectorAll('.filter-btn[data-size]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filterSize = btn.dataset.size;
+  renderShipList();
+}
+
+function filterShips() {
+  filterSearch = document.getElementById('ship-search').value.toLowerCase();
+  renderShipList();
+}
+
+function renderShipList() {
+  const filtered = SHIPS.filter(s => {
+    if (filterFaction !== 'all' && s.faction !== filterFaction) return false;
+    if (filterSize !== 'all' && s.hull_size !== filterSize) return false;
+    if (filterSearch && !s.name.toLowerCase().includes(filterSearch) && !s.faction.toLowerCase().includes(filterSearch)) return false;
+    return true;
+  });
+
+  document.getElementById('visible-count').textContent = `${filtered.length}/${SHIPS.length}`;
+
+  const sizeOrder = { capital: 0, cruiser: 1, destroyer: 2, frigate: 3 };
+  filtered.sort((a, b) => (sizeOrder[a.hull_size] - sizeOrder[b.hull_size]) || a.name.localeCompare(b.name));
+
+  const container = document.getElementById('ship-list');
+  if (!filtered.length) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;">NO SHIPS FOUND</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => `
+    <div class="ship-item" onclick="addShip('${s.id}')" title="${s.description}">
+      <div class="ship-item-left">
+        <div class="ship-name">${s.name}</div>
+        <div class="ship-meta">
+          <span class="hull-tag hull-${s.hull_size}">${s.hull_size}</span>
+          <span class="ship-faction">${s.faction}</span>
+        </div>
+      </div>
+      <div class="ship-item-right">
+        <div>
+          <div class="dp-badge">${s.dp}</div>
+          <div class="dp-label">DP</div>
+        </div>
+        <div class="add-btn" title="Add to fleet">+</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== FLEET ====================
+function addShip(id) {
+  fleet[id] = (fleet[id] || 0) + 1;
+  renderFleet();
+  updateStats();
+  toast(`+ ${SHIPS.find(s => s.id === id)?.name}`);
+}
+
+function changeQty(id, delta) {
+  fleet[id] = (fleet[id] || 0) + delta;
+  if (fleet[id] <= 0) delete fleet[id];
+  renderFleet();
+  updateStats();
+}
+
+function clearFleet() {
+  fleet = {};
+  renderFleet();
+  updateStats();
+  currentCode = '';
+  document.getElementById('code-preview').textContent = '[ generate code to share ]';
+  document.getElementById('code-preview').className = 'code-display empty';
+  toast('Fleet cleared');
+}
+
+function renderFleet() {
+  const roster = document.getElementById('fleet-roster');
+  const empty = document.getElementById('fleet-empty');
+  const keys = Object.keys(fleet);
+
+  document.getElementById('fleet-ship-count').textContent = `${keys.reduce((a, k) => a + fleet[k], 0)} ships`;
+
+  if (!keys.length) {
+    empty.style.display = '';
+    roster.style.display = 'none';
+    document.getElementById('composition-pills').innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+  roster.style.display = '';
+
+  const sizeOrder = { capital: 0, cruiser: 1, destroyer: 2, frigate: 3 };
+  const sorted = keys.sort((a, b) => {
+    const sa = SHIPS.find(s => s.id === a);
+    const sb = SHIPS.find(s => s.id === b);
+    return (sizeOrder[sa?.hull_size] - sizeOrder[sb?.hull_size]) || a.localeCompare(b);
+  });
+
+  roster.innerHTML = sorted.map(id => {
+    const ship = SHIPS.find(s => s.id === id);
+    if (!ship) return '';
+    const totalDp = ship.dp * fleet[id];
+    return `
+      <div class="fleet-slot">
+        <span class="hull-tag hull-${ship.hull_size}" style="font-size:8px;">${ship.hull_size[0].toUpperCase()}</span>
+        <span class="fleet-slot-name">${ship.name}</span>
+        <div class="qty-control">
+          <div class="qty-btn remove" onclick="changeQty('${id}', -1)">−</div>
+          <span class="qty-num">${fleet[id]}</span>
+          <div class="qty-btn" onclick="changeQty('${id}', 1)">+</div>
+        </div>
+        <span class="fleet-slot-dp">${totalDp} DP</span>
+      </div>
+    `;
+  }).join('');
+
+  // Composition pills
+  const counts = { capital: 0, cruiser: 0, destroyer: 0, frigate: 0 };
+  Object.entries(fleet).forEach(([id, cnt]) => {
+    const ship = SHIPS.find(s => s.id === id);
+    if (ship) counts[ship.hull_size] += cnt;
+  });
+  const pills = Object.entries(counts)
+    .filter(([, v]) => v > 0)
+    .map(([size, count]) => `<div class="comp-pill ${size}">${count} ${size}${count > 1 ? 's' : ''}</div>`)
+    .join('');
+  document.getElementById('composition-pills').innerHTML = pills;
+}
+
+// ==================== STATS ====================
+function calcStats(fleetData, shipDb) {
+  let dp = 0, fuel = 0, cargo = 0, crew = 0, supply = 0, ships = 0;
+  let minBurn = Infinity;
+
+  Object.entries(fleetData).forEach(([id, count]) => {
+    const ship = shipDb.find(s => s.id === id);
+    if (!ship) return;
+    dp += ship.dp * count;
+    fuel += ship.fuel * count;
+    cargo += ship.cargo * count;
+    crew += ship.crew * count;
+    supply += ship.supply_use * count;
+    ships += count;
+    if (ship.burn < minBurn) minBurn = ship.burn;
+  });
+
+  return { dp, fuel, cargo, crew, supply, ships, burn: minBurn === Infinity ? 0 : minBurn };
+}
+
+function updateStats() {
+  const s = calcStats(fleet, SHIPS);
+  document.getElementById('stat-dp').textContent = s.dp;
+  document.getElementById('stat-ships').textContent = s.ships;
+  document.getElementById('stat-fuel').textContent = s.fuel.toLocaleString();
+  document.getElementById('stat-cargo').textContent = s.cargo.toLocaleString();
+  document.getElementById('stat-crew').textContent = s.crew.toLocaleString();
+  document.getElementById('stat-supply').textContent = s.supply;
+  document.getElementById('stat-burn').textContent = s.burn > 0 ? s.burn : '—';
+
+  const dpPct = Math.min(100, (s.dp / 240) * 100);
+  document.getElementById('bar-dp').style.width = dpPct + '%';
+  document.getElementById('bar-dp').className = 'stat-bar' + (s.dp > 200 ? ' warn' : '');
+}
+
+// ==================== CODE SYSTEM ====================
+// Encoding: JSON payload → UTF-8 → base64 with simple XOR obfuscation
+// Format: FH1_<base64payload>_<checksum4>
+
+const CODEC_VERSION = 'FH1';
+const XOR_KEY = 0x5A;
+
+function encodeFleetCode(name, author, desc, objective, fleetMap) {
+  const payload = JSON.stringify({
+    v: 1,
+    n: name || 'Unnamed Fleet',
+    a: author || 'Anonymous',
+    d: desc || '',
+    o: objective || '',
+    s: Object.entries(fleetMap).map(([id, count]) => `${id}:${count}`).join(',')
+  });
+
+  // XOR bytes for light obfuscation
+  const bytes = new TextEncoder().encode(payload);
+  const xored = bytes.map(b => b ^ XOR_KEY);
+  const b64 = btoa(String.fromCharCode(...xored));
+
+  // Simple checksum: sum of all bytes mod 1000000 → 6 hex chars
+  const checksum = (bytes.reduce((a, b) => a + b, 0) % 16777216).toString(16).padStart(6, '0').toUpperCase();
+
+  return `${CODEC_VERSION}_${b64}_${checksum}`;
+}
+
+function decodeFleetCode(code) {
+  try {
+    const parts = code.trim().split('_');
+    if (parts.length < 3 || parts[0] !== CODEC_VERSION) throw new Error('Invalid code format');
+
+    const b64 = parts[1];
+    const checksum = parts[2];
+
+    const raw = atob(b64);
+    const xored = Uint8Array.from(raw, c => c.charCodeAt(0));
+    const bytes = xored.map(b => b ^ XOR_KEY);
+
+    // Verify checksum
+    const expected = (bytes.reduce((a, b) => a + b, 0) % 16777216).toString(16).padStart(6, '0').toUpperCase();
+    if (expected !== checksum) throw new Error('Checksum mismatch — code may be corrupted');
+
+    const json = new TextDecoder().decode(bytes);
+    const payload = JSON.parse(json);
+
+    // Parse ships
+    const ships = {};
+    if (payload.s) {
+      payload.s.split(',').forEach(entry => {
+        const [id, count] = entry.split(':');
+        if (id && count) ships[id] = parseInt(count, 10);
+      });
+    }
+
+    return {
+      name: payload.n,
+      author: payload.a,
+      desc: payload.d,
+      objective: payload.o,
+      ships
+    };
+  } catch(e) {
+    throw new Error('Could not decode: ' + e.message);
+  }
+}
+
+function generateCode() {
+  const keys = Object.keys(fleet);
+  if (!keys.length) {
+    document.getElementById('fleet-warning').classList.add('visible');
+    return;
+  }
+  document.getElementById('fleet-warning').classList.remove('visible');
+
+  const name = document.getElementById('fleet-name').value;
+  const author = document.getElementById('fleet-author').value;
+  const desc = document.getElementById('fleet-desc').value;
+  const obj = document.getElementById('fleet-obj').value;
+
+  currentCode = encodeFleetCode(name, author, desc, obj, fleet);
+
+  const preview = document.getElementById('code-preview');
+  preview.textContent = currentCode;
+  preview.className = 'code-display';
+
+  toast('Code generated!');
+  syncShareView();
+}
+
+function copyCode() {
+  if (!currentCode) { toast('Generate a code first', true); return; }
+  navigator.clipboard.writeText(currentCode).then(() => toast('Code copied to clipboard!'));
+}
+
+function copyCodeShare() {
+  if (!currentCode) { toast('Generate a code first', true); return; }
+  navigator.clipboard.writeText(currentCode).then(() => toast('Code copied!'));
+}
+
+function syncShareView() {
+  const el = document.getElementById('share-code-display');
+  const meta = document.getElementById('share-meta');
+  if (currentCode) {
+    el.textContent = currentCode;
+    el.className = 'code-display';
+    const s = calcStats(fleet, SHIPS);
+    const name = document.getElementById('fleet-name').value || 'Unnamed Fleet';
+    const author = document.getElementById('fleet-author').value || 'Anonymous';
+    meta.innerHTML = `NAME: ${name}<br>AUTHOR: ${author}<br>SHIPS: ${s.ships} · DP: ${s.dp}`;
+  } else {
+    el.textContent = '[ no fleet built yet ]';
+    el.className = 'code-display empty';
+    meta.textContent = '—';
+  }
+}
+
+// ==================== IMPORT ====================
+function importFleet() {
+  const code = document.getElementById('import-input').value.trim();
+  if (!code) { toast('Paste a fleet code first', true); return; }
+
+  try {
+    const data = decodeFleetCode(code);
+    importedFleetData = data;
+    renderImportedFleet(data);
+    document.getElementById('imported-fleet').classList.add('visible');
+    toast('Fleet loaded successfully!');
+  } catch(e) {
+    toast(e.message, true);
+  }
+}
+
+function renderImportedFleet(data) {
+  document.getElementById('imported-name').textContent = data.name;
+  document.getElementById('imported-meta').textContent =
+    `by ${data.author}` + (data.objective ? ` · ${data.objective}` : '');
+  document.getElementById('imported-desc').textContent = data.desc || '';
+
+  const roster = document.getElementById('imported-roster');
+  const sizeOrder = { capital: 0, cruiser: 1, destroyer: 2, frigate: 3 };
+  const entries = Object.entries(data.ships).sort((a, b) => {
+    const sa = SHIPS.find(s => s.id === a[0]);
+    const sb = SHIPS.find(s => s.id === b[0]);
+    return (sizeOrder[sa?.hull_size] || 3) - (sizeOrder[sb?.hull_size] || 3);
+  });
+
+  roster.innerHTML = entries.map(([id, count]) => {
+    const ship = SHIPS.find(s => s.id === id);
+    const name = ship ? ship.name : id;
+    const size = ship ? ship.hull_size : 'unknown';
+    const dp = ship ? ship.dp * count : '?';
+    return `
+      <div class="fleet-slot">
+        <span class="hull-tag hull-${size}" style="font-size:8px;">${size[0]?.toUpperCase() || '?'}</span>
+        <span class="fleet-slot-name">${name}</span>
+        <span class="qty-num" style="margin-left:auto;margin-right:8px;">×${count}</span>
+        <span class="fleet-slot-dp">${dp} DP</span>
+      </div>
+    `;
+  }).join('');
+
+  // Stats
+  const s = calcStats(data.ships, SHIPS);
+  document.getElementById('imp-dp').textContent = s.dp;
+  document.getElementById('imp-ships').textContent = s.ships;
+  document.getElementById('imp-fuel').textContent = s.fuel.toLocaleString();
+  document.getElementById('imp-cargo').textContent = s.cargo.toLocaleString();
+  document.getElementById('imp-crew').textContent = s.crew.toLocaleString();
+  document.getElementById('imp-supply').textContent = s.supply;
+  document.getElementById('imp-burn').textContent = s.burn > 0 ? s.burn : '—';
+}
+
+function loadImportedIntoBuilder() {
+  if (!importedFleetData) return;
+  fleet = { ...importedFleetData.ships };
+  document.getElementById('fleet-name').value = importedFleetData.name;
+  document.getElementById('fleet-author').value = importedFleetData.author;
+  document.getElementById('fleet-desc').value = importedFleetData.desc;
+  document.getElementById('fleet-obj').value = importedFleetData.objective || '';
+  renderFleet();
+  updateStats();
+  showView('builder');
+  toast('Fleet loaded into builder!');
+}
+
+// ==================== JSON EXPORT ====================
+function exportJSON() {
+  const keys = Object.keys(fleet);
+  if (!keys.length) { toast('Fleet is empty', true); return; }
+
+  const name = document.getElementById('fleet-name').value || 'Unnamed Fleet';
+  const author = document.getElementById('fleet-author').value || 'Anonymous';
+  const desc = document.getElementById('fleet-desc').value;
+  const obj = document.getElementById('fleet-obj').value;
+
+  const json = {
+    name,
+    author,
+    description: desc,
+    objective: obj,
+    created: new Date().toISOString().split('T')[0],
+    ships: Object.entries(fleet).map(([id, count]) => ({ id, count }))
+  };
+
+  const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${name.replace(/\s+/g, '_').toLowerCase()}_fleet.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('JSON exported!');
+}
+
+// ==================== BOOT ====================
+init();
+loadCommunity();
+</script>
+</body>
+</html>
