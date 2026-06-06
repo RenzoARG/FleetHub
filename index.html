@@ -627,6 +627,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
   font-size: 11px;
   color: #d44;
   display: none;
+  margin-bottom: 10px;
 }
 .fleet-warning.visible { display: block; }
 
@@ -650,10 +651,10 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
     <div class="logo-sub">Starsector Fleet Library</div>
   </div>
   <nav>
-    <button class="nav-btn active" onclick="showView('builder')" id="nav-builder">// Build</button>
-    <button class="nav-btn" onclick="showView('community')" id="nav-community">// Community</button>
-    <button class="nav-btn" onclick="showView('share')" id="nav-share">// Share</button>
-    <button class="nav-btn" onclick="showView('import')" id="nav-import">// Import</button>
+    <button class="nav-btn active" onclick="window.showView('builder')" id="nav-builder">// Build</button>
+    <button class="nav-btn" onclick="window.showView('community')" id="nav-community">// Community</button>
+    <button class="nav-btn" onclick="window.showView('share')" id="nav-share">// Share</button>
+    <button class="nav-btn" onclick="window.showView('import')" id="nav-import">// Import</button>
   </nav>
 </header>
 
@@ -671,7 +672,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
   <div class="section-header">
     <span class="section-title">Fleet Constructor</span>
     <div class="section-line"></div>
-    <button class="btn danger" onclick="clearFleet()">✕ Clear Fleet</button>
+    <button class="btn danger" onclick="window.clearFleet()">✕ Clear Fleet</button>
   </div>
 
   <div class="builder-grid">
@@ -681,20 +682,20 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
       <div class="panel">
         <div class="panel-header">
           <span class="panel-title">// Ship Database</span>
-          <span id="visible-count" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)"></span>
+          <span id="visible-count" style="font-family:var(--font-mono);font-size:10px;color:var(--text3)">0/0</span>
         </div>
         <div class="panel-body">
           <div class="search-wrap">
             <span class="search-icon">⌕</span>
-            <input class="search-input" id="ship-search" placeholder="Search ships..." oninput="filterShips()">
+            <input class="search-input" id="ship-search" placeholder="Search ships..." oninput="window.filterShips()">
           </div>
           <div class="filter-row" id="faction-filters"></div>
           <div class="filter-row" style="margin-top:4px;">
-            <button class="filter-btn active" data-size="all" onclick="filterSize(this)">All</button>
-            <button class="filter-btn" data-size="capital" onclick="filterSize(this)">Capital</button>
-            <button class="filter-btn" data-size="cruiser" onclick="filterSize(this)">Cruiser</button>
-            <button class="filter-btn" data-size="destroyer" onclick="filterSize(this)">Destroyer</button>
-            <button class="filter-btn" data-size="frigate" onclick="filterSize(this)">Frigate</button>
+            <button class="filter-btn active" data-size="all" onclick="window.filterSize(this)">All</button>
+            <button class="filter-btn" data-size="capital" onclick="window.filterSize(this)">Capital</button>
+            <button class="filter-btn" data-size="cruiser" onclick="window.filterSize(this)">Cruiser</button>
+            <button class="filter-btn" data-size="destroyer" onclick="window.filterSize(this)">Destroyer</button>
+            <button class="filter-btn" data-size="frigate" onclick="window.filterSize(this)">Frigate</button>
           </div>
           <div class="ship-list" id="ship-list"></div>
         </div>
@@ -787,11 +788,11 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
           <div class="fleet-warning" id="fleet-warning">Fleet is empty — add ships first</div>
           <div class="code-display empty" id="code-preview">[ generate code to share ]</div>
           <div class="btn-row" style="margin-top:10px;">
-            <button class="btn primary" onclick="generateCode()" style="flex:1;">⚡ Generate Code</button>
-            <button class="btn success" onclick="copyCode()" style="flex:1;">⎘ Copy</button>
+            <button class="btn primary" onclick="window.generateCode()" style="flex:1;">⚡ Generate Code</button>
+            <button class="btn success" onclick="window.copyCode()" style="flex:1;">⎘ Copy</button>
           </div>
           <div style="margin-top:8px;">
-            <button class="btn" onclick="exportJSON()" style="width:100%;">⊡ Export JSON</button>
+            <button class="btn" onclick="window.exportJSON()" style="width:100%;">⊡ Export JSON</button>
           </div>
         </div>
       </div>
@@ -845,8 +846,8 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
         <div class="panel-body">
           <div class="code-display empty" id="share-code-display">[ no fleet built yet ]</div>
           <div class="btn-row" style="margin-top:12px;">
-            <button class="btn primary" onclick="generateCode(); syncShareView();" style="flex:1;">⚡ Generate</button>
-            <button class="btn success" onclick="copyCodeShare()" style="flex:1;">⎘ Copy Code</button>
+            <button class="btn primary" onclick="window.generateCode(); window.syncShareView();" style="flex:1;">⚡ Generate</button>
+            <button class="btn success" onclick="window.copyCodeShare()" style="flex:1;">⎘ Copy Code</button>
           </div>
           <div class="divider"></div>
           <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono);">
@@ -879,7 +880,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
       <div class="panel-body">
         <div class="import-wrap">
           <input class="import-input" id="import-input" placeholder="Paste fleet code here...">
-          <button class="btn primary" onclick="importFleet()">▶ Load Fleet</button>
+          <button class="btn primary" onclick="window.importFleet()">▶ Load Fleet</button>
         </div>
         <div style="margin-top:8px;font-size:11px;color:var(--text3);font-family:var(--font-mono);">
           Paste a FleetHub code to reconstruct the fleet instantly.
@@ -919,7 +920,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
             </div>
           </div>
           <div class="btn-row">
-            <button class="btn success" onclick="loadImportedIntoBuilder()" style="width:100%;">⊕ Load into Builder</button>
+            <button class="btn success" onclick="window.loadImportedIntoBuilder()" style="width:100%;">⊕ Load into Builder</button>
           </div>
         </div>
       </div>
@@ -933,7 +934,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 
 <script>
 // ==================== EMBEDDED DATA ====================
-let SHIPS = [
+const SHIPS = [
   {id:"onslaught",name:"Onslaught",faction:"Hegemony",hull_size:"capital",dp:40,fuel:400,cargo:200,crew:1600,burn:8,supply_use:40,role:["combat"],description:"Heavy battleship. The fist of the Hegemony."},
   {id:"conquest",name:"Conquest",faction:"Independent",hull_size:"capital",dp:40,fuel:600,cargo:250,crew:1400,burn:9,supply_use:35,role:["combat"],description:"Fast battlecruiser. Flexible capital for aggressive flanking."},
   {id:"astral",name:"Astral",faction:"Tri-Tachyon",hull_size:"capital",dp:44,fuel:1200,cargo:150,crew:2200,burn:9,supply_use:45,role:["combat"],description:"Carrier capital. Massive flight deck capacity."},
@@ -961,7 +962,7 @@ let SHIPS = [
   {id:"ox",name:"Ox",faction:"Independent",hull_size:"frigate",dp:4,fuel:50,cargo:30,crew:40,burn:16,supply_use:3,role:["exploration","trade"],description:"Tug. Increases fleet burn speed significantly."}
 ];
 
-let COMMUNITY_FLEETS = [
+const COMMUNITY_FLEETS = [
   {id:"fleet_001",name:"Iron Curtain",author:"Cmdr_Vega",description:"Heavy assault fleet built around Onslaught capital support. Slow but nearly impossible to break through.",objective:"combat",ships:[{id:"onslaught",count:1},{id:"champion",count:2},{id:"hammerhead",count:3},{id:"lasher",count:4}],created:"2024-03-15"},
   {id:"fleet_002",name:"Ghost Protocol",author:"PhaseRunner",description:"Full phase fleet. Extremely fast and evasive. Requires skilled officers and high CR maintenance.",objective:"combat",ships:[{id:"aurora",count:1},{id:"medusa",count:2},{id:"tempest",count:4}],created:"2024-02-28"},
   {id:"fleet_003",name:"Deep Space Survey",author:"NexusExplorer",description:"Long-range exploration fleet with maximum fuel and cargo capacity. Built for the outer reaches.",objective:"exploration",ships:[{id:"prometheus",count:2},{id:"venture",count:1},{id:"shepherd",count:2},{id:"wolf",count:2},{id:"ox",count:1}],created:"2024-04-01"}
@@ -976,29 +977,30 @@ let filterSize = 'all';
 let filterSearch = '';
 
 // ==================== INIT ====================
-function init() {
+window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('sb-shipcount').textContent = `SHIPS LOADED: ${SHIPS.length}`;
   buildFactionFilters();
   renderShipList();
   loadCommunityFleets();
-}
+  console.log('✓ FleetHub initialized - ' + SHIPS.length + ' ships loaded');
+});
 
 // ==================== UI ====================
-function showView(v) {
+window.showView = function(v) {
   document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('nav-' + v).classList.add('active');
   if (v === 'share') syncShareView();
-}
+};
 
-function toast(msg, isError = false) {
+window.toast = function(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show' + (isError ? ' error' : '');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2400);
-}
+};
 
 // ==================== SHIP LIST ====================
 function buildFactionFilters() {
@@ -1011,24 +1013,24 @@ function buildFactionFilters() {
   container.innerHTML = html;
 }
 
-function filterFactionBtn(btn) {
+window.filterFactionBtn = function(btn) {
   document.querySelectorAll('#faction-filters .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   filterFaction = btn.dataset.faction;
   renderShipList();
-}
+};
 
-function filterSize(btn) {
+window.filterSize = function(btn) {
   document.querySelectorAll('.filter-btn[data-size]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   filterSize = btn.dataset.size;
   renderShipList();
-}
+};
 
-function filterShips() {
+window.filterShips = function() {
   filterSearch = document.getElementById('ship-search').value.toLowerCase();
   renderShipList();
-}
+};
 
 function renderShipList() {
   const filtered = SHIPS.filter(s => {
@@ -1050,7 +1052,7 @@ function renderShipList() {
   }
 
   container.innerHTML = filtered.map(s => `
-    <div class="ship-item" onclick="addShip('${s.id}')" title="${s.description}">
+    <div class="ship-item" onclick="window.addShip('${s.id}')" title="${s.description}">
       <div class="ship-item-left">
         <div class="ship-name">${s.name}</div>
         <div class="ship-meta">
@@ -1070,18 +1072,18 @@ function renderShipList() {
 }
 
 // ==================== FLEET MANAGEMENT ====================
-function addShip(shipId) {
+window.addShip = function(shipId) {
   fleet[shipId] = (fleet[shipId] || 0) + 1;
   updateFleetDisplay();
-}
+};
 
-function removeShip(shipId) {
+window.removeShip = function(shipId) {
   if (fleet[shipId]) {
     fleet[shipId]--;
     if (fleet[shipId] === 0) delete fleet[shipId];
   }
   updateFleetDisplay();
-}
+};
 
 function updateFleetDisplay() {
   const roster = document.getElementById('fleet-roster');
@@ -1107,9 +1109,9 @@ function updateFleetDisplay() {
         <div class="fleet-slot-name">${ship.name}</div>
         <div class="fleet-slot-dp">${ship.dp * count} DP</div>
         <div class="qty-control">
-          <button class="qty-btn remove" onclick="removeShip('${id}')">−</button>
+          <button class="qty-btn remove" onclick="window.removeShip('${id}')">−</button>
           <span class="qty-num">${count}</span>
-          <button class="qty-btn" onclick="addShip('${id}')">+</button>
+          <button class="qty-btn" onclick="window.addShip('${id}')">+</button>
         </div>
       </div>
     `;
@@ -1166,7 +1168,7 @@ function updateStats() {
   document.getElementById('fleet-warning').classList.toggle('visible', !hasFleet);
 }
 
-function clearFleet() {
+window.clearFleet = function() {
   if (Object.keys(fleet).length === 0) return;
   if (!confirm('Clear entire fleet? This cannot be undone.')) return;
   fleet = {};
@@ -1178,7 +1180,8 @@ function clearFleet() {
   currentCode = '';
   document.getElementById('code-preview').textContent = '[ generate code to share ]';
   document.getElementById('code-preview').classList.add('empty');
-}
+  window.toast('Fleet cleared');
+};
 
 // ==================== COMMUNITY FLEETS ====================
 function loadCommunityFleets() {
@@ -1200,7 +1203,7 @@ function loadCommunityFleets() {
     });
 
     return `
-      <div class="fleet-card" onclick="importCommunityFleet('${f.id}')">
+      <div class="fleet-card" onclick="window.importCommunityFleet('${f.id}')">
         <div class="fleet-card-name">${f.name}</div>
         <div class="fleet-card-author">By ${f.author}</div>
         <div class="fleet-card-desc">${f.description}</div>
@@ -1209,13 +1212,13 @@ function loadCommunityFleets() {
           <span class="fleet-card-badge">${totalDP} DP</span>
           <span class="fleet-card-badge">${totalShips} ships</span>
         </div>
-        <button class="btn primary fleet-card-button" onclick="event.stopPropagation(); importCommunityFleet('${f.id}');">⊕ Load Fleet</button>
+        <button class="btn primary fleet-card-button" onclick="event.stopPropagation(); window.importCommunityFleet('${f.id}');">⊕ Load Fleet</button>
       </div>
     `;
   }).join('');
 }
 
-function importCommunityFleet(fleetId) {
+window.importCommunityFleet = function(fleetId) {
   const fleetData = COMMUNITY_FLEETS.find(f => f.id === fleetId);
   if (!fleetData) return;
 
@@ -1230,14 +1233,14 @@ function importCommunityFleet(fleetId) {
   document.getElementById('fleet-obj').value = fleetData.objective || '';
 
   updateFleetDisplay();
-  showView('builder');
-  toast('Fleet loaded into builder!');
-}
+  window.showView('builder');
+  window.toast('Fleet loaded into builder!');
+};
 
 // ==================== EXPORT & IMPORT ====================
-function generateCode() {
+window.generateCode = function() {
   if (Object.keys(fleet).length === 0) {
-    toast('Fleet is empty', true);
+    window.toast('Fleet is empty', true);
     return;
   }
   const name = document.getElementById('fleet-name').value || 'Unnamed Fleet';
@@ -1254,8 +1257,8 @@ function generateCode() {
   
   document.getElementById('code-preview').textContent = currentCode;
   document.getElementById('code-preview').classList.remove('empty');
-  toast('Fleet code generated!');
-}
+  window.toast('Fleet code generated!');
+};
 
 function generateChecksum(data) {
   let hash = 0;
@@ -1267,23 +1270,23 @@ function generateChecksum(data) {
   return Math.abs(hash).toString(16).substring(0, 4);
 }
 
-function copyCode() {
+window.copyCode = function() {
   if (!currentCode) {
-    toast('Generate a code first', true);
+    window.toast('Generate a code first', true);
     return;
   }
   navigator.clipboard.writeText(currentCode).then(() => {
-    toast('Copied to clipboard!');
+    window.toast('Copied to clipboard!');
   });
-}
+};
 
-function copyCodeShare() {
-  copyCode();
-}
+window.copyCodeShare = function() {
+  window.copyCode();
+};
 
-function exportJSON() {
+window.exportJSON = function() {
   if (Object.keys(fleet).length === 0) {
-    toast('Fleet is empty', true);
+    window.toast('Fleet is empty', true);
     return;
   }
   const name = document.getElementById('fleet-name').value || 'fleet';
@@ -1303,13 +1306,13 @@ function exportJSON() {
   a.download = name.replace(/\s+/g, '_') + '.json';
   a.click();
   URL.revokeObjectURL(url);
-  toast('Fleet exported as JSON!');
-}
+  window.toast('Fleet exported as JSON!');
+};
 
-function importFleet() {
+window.importFleet = function() {
   const code = document.getElementById('import-input').value.trim();
   if (!code) {
-    toast('Paste a fleet code', true);
+    window.toast('Paste a fleet code', true);
     return;
   }
   
@@ -1322,9 +1325,9 @@ function importFleet() {
     importedFleetData = data;
     displayImportedFleet(data);
   } catch (e) {
-    toast('Invalid fleet code', true);
+    window.toast('Invalid fleet code', true);
   }
-}
+};
 
 function displayImportedFleet(data) {
   const container = document.getElementById('imported-fleet');
@@ -1366,10 +1369,10 @@ function displayImportedFleet(data) {
   document.getElementById('imp-burn').textContent = minBurn === Infinity ? '—' : minBurn;
   
   container.classList.add('visible');
-  toast('Fleet loaded!');
+  window.toast('Fleet loaded!');
 }
 
-function loadImportedIntoBuilder() {
+window.loadImportedIntoBuilder = function() {
   if (!importedFleetData) return;
   
   fleet = {};
@@ -1383,9 +1386,9 @@ function loadImportedIntoBuilder() {
   document.getElementById('fleet-obj').value = importedFleetData.obj || '';
   
   updateFleetDisplay();
-  showView('builder');
-  toast('Fleet loaded into builder!');
-}
+  window.showView('builder');
+  window.toast('Fleet loaded into builder!');
+};
 
 function syncShareView() {
   const display = document.getElementById('share-code-display');
@@ -1401,8 +1404,7 @@ function syncShareView() {
   }
 }
 
-// ==================== STARTUP ====================
-window.addEventListener('load', init);
+window.syncShareView = syncShareView;
 </script>
 </body>
 </html>
