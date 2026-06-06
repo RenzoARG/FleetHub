@@ -336,20 +336,6 @@
     "description": "Combat frigate. Patrol ship with decent armament."
   },
   {
-    "id": "salvage_rig",
-    "name": "Salvage Rig",
-    "faction": "Hegemony",
-    "hull_size": "destroyer",
-    "dp": 3,
-    "fuel": 0,
-    "cargo": 0,
-    "crew": 20,
-    "burn": 8,
-    "supply_use": 3,
-    "role": ["trade"],
-    "description": "Assist in recovering derelict hulks and scavenging"
-  },
-  {
     "id": "ox",
     "name": "Ox",
     "faction": "Independent",
