@@ -659,7 +659,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 </header>
 
 <div class="statusbar">
-  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.1</span></div>
+  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.2</span></div>
   <div class="sb-item">STARSECTOR 0.97a</div>
   <div class="sb-item" id="sb-shipcount">SHIPS LOADED: —</div>
   <div class="sb-item">VANILLA ONLY</div>
@@ -834,7 +834,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:0.05em;">
             FORMAT: BASE64(version + ships + metadata)<br>
             CHECKSUM: CRC-style 4-char suffix<br>
-            MAX SHIPS: 30 unique hulls
+            MAX SHIPS: 60+ unique hulls
           </div>
         </div>
       </div>
@@ -860,7 +860,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
         <div class="panel-header"><span class="panel-title">// Community Submission</span></div>
         <div class="panel-body" style="color:var(--text2);font-size:12px;line-height:1.7;">
           Want your fleet in the community library?<br><br>
-          Export your fleet code + JSON and submit a <span style="color:var(--accent)">Pull Request</span> to the FleetHub repository adding your file to <span style="font-family:var(--font-mono);color:var(--accent-dim)">data/fleets/community.json</span>.
+          Export your fleet code + JSON and submit a <span style="color:var(--accent)">Pull Request</span> to the FleetHub repository adding your file to the community folder.
         </div>
       </div>
     </div>
@@ -933,41 +933,9 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== EMBEDDED DATA ====================
-const SHIPS = [
-  {id:"onslaught",name:"Onslaught",faction:"Hegemony",hull_size:"capital",dp:40,fuel:400,cargo:200,crew:1600,burn:8,supply_use:40,role:["combat"],description:"Heavy battleship. The fist of the Hegemony."},
-  {id:"conquest",name:"Conquest",faction:"Independent",hull_size:"capital",dp:40,fuel:600,cargo:250,crew:1400,burn:9,supply_use:35,role:["combat"],description:"Fast battlecruiser. Flexible capital for aggressive flanking."},
-  {id:"astral",name:"Astral",faction:"Tri-Tachyon",hull_size:"capital",dp:44,fuel:1200,cargo:150,crew:2200,burn:9,supply_use:45,role:["combat"],description:"Carrier capital. Massive flight deck capacity."},
-  {id:"paragon",name:"Paragon",faction:"Tri-Tachyon",hull_size:"capital",dp:60,fuel:600,cargo:100,crew:2000,burn:8,supply_use:60,role:["combat"],description:"Pinnacle of ship design. Expensive but nearly unstoppable."},
-  {id:"odyssey",name:"Odyssey",faction:"Tri-Tachyon",hull_size:"capital",dp:36,fuel:800,cargo:150,crew:1200,burn:11,supply_use:38,role:["combat","exploration"],description:"Fast attack carrier. Speed over firepower."},
-  {id:"legion",name:"Legion",faction:"Hegemony",hull_size:"capital",dp:38,fuel:500,cargo:300,crew:1800,burn:8,supply_use:40,role:["combat"],description:"Carrier battleship. Combines heavy guns with fighter support."},
-  {id:"champion",name:"Champion",faction:"Hegemony",hull_size:"cruiser",dp:22,fuel:300,cargo:100,crew:700,burn:9,supply_use:22,role:["combat"],description:"Combat cruiser. Reliable and versatile Hegemony backbone."},
-  {id:"aurora",name:"Aurora",faction:"Tri-Tachyon",hull_size:"cruiser",dp:22,fuel:400,cargo:80,crew:600,burn:14,supply_use:18,role:["combat"],description:"Fast attack cruiser. Extremely mobile, deadly in the right hands."},
-  {id:"eagle",name:"Eagle",faction:"Persean League",hull_size:"cruiser",dp:24,fuel:250,cargo:120,crew:700,burn:9,supply_use:22,role:["combat"],description:"Heavy combat cruiser. Excellent firepower at range."},
-  {id:"falcon",name:"Falcon",faction:"Persean League",hull_size:"cruiser",dp:16,fuel:200,cargo:100,crew:500,burn:10,supply_use:16,role:["combat"],description:"Fast cruiser. Good balance of speed and firepower."},
-  {id:"mora",name:"Mora",faction:"Sindrian Diktat",hull_size:"cruiser",dp:16,fuel:200,cargo:100,crew:600,burn:8,supply_use:16,role:["combat"],description:"Carrier cruiser. Three fighter bays."},
-  {id:"venture",name:"Venture",faction:"Independent",hull_size:"cruiser",dp:10,fuel:500,cargo:1000,crew:400,burn:8,supply_use:10,role:["trade","exploration"],description:"Heavy freighter. Exceptional cargo capacity."},
-  {id:"prometheus",name:"Prometheus",faction:"Independent",hull_size:"cruiser",dp:10,fuel:2000,cargo:400,crew:300,burn:8,supply_use:12,role:["exploration"],description:"Tanker. Critical for long-range operations."},
-  {id:"medusa",name:"Medusa",faction:"Tri-Tachyon",hull_size:"destroyer",dp:14,fuel:150,cargo:60,crew:300,burn:14,supply_use:12,role:["combat"],description:"Phase destroyer. Extremely fast, difficult to pin down."},
-  {id:"hammerhead",name:"Hammerhead",faction:"Independent",hull_size:"destroyer",dp:14,fuel:120,cargo:60,crew:300,burn:10,supply_use:10,role:["combat"],description:"Combat destroyer. Front-line fighter and workhorse."},
-  {id:"sunder",name:"Sunder",faction:"Hegemony",hull_size:"destroyer",dp:12,fuel:100,cargo:50,crew:250,burn:9,supply_use:9,role:["combat"],description:"Energy destroyer. Packs serious firepower for its size."},
-  {id:"condor",name:"Condor",faction:"Independent",hull_size:"destroyer",dp:8,fuel:100,cargo:60,crew:250,burn:9,supply_use:8,role:["combat"],description:"Carrier destroyer. Budget fighter platform."},
-  {id:"shepherd",name:"Shepherd",faction:"Independent",hull_size:"destroyer",dp:4,fuel:80,cargo:80,crew:80,burn:9,supply_use:4,role:["trade","exploration"],description:"Utility ship. Survey and light transport."},
-  {id:"wolf",name:"Wolf",faction:"Persean League",hull_size:"frigate",dp:6,fuel:80,cargo:40,crew:100,burn:12,supply_use:5,role:["combat"],description:"Fast frigate. Excellent hit-and-run attacker."},
-  {id:"tempest",name:"Tempest",faction:"Tri-Tachyon",hull_size:"frigate",dp:10,fuel:100,cargo:30,crew:150,burn:14,supply_use:7,role:["combat"],description:"Phase frigate. Extremely fast and elusive."},
-  {id:"hound",name:"Hound",faction:"Independent",hull_size:"frigate",dp:3,fuel:100,cargo:100,crew:50,burn:10,supply_use:2,role:["trade"],description:"Light freighter. Common smuggling vessel."},
-  {id:"mudskipper",name:"Mudskipper Mk.II",faction:"Independent",hull_size:"frigate",dp:2,fuel:60,cargo:60,crew:30,burn:9,supply_use:2,role:["trade"],description:"Tiny freighter. Extremely cheap to operate."},
-  {id:"lasher",name:"Lasher",faction:"Hegemony",hull_size:"frigate",dp:7,fuel:80,cargo:40,crew:120,burn:10,supply_use:5,role:["combat"],description:"Combat frigate. Solid low-tech front-liner."},
-  {id:"vigilance",name:"Vigilance",faction:"Hegemony",hull_size:"frigate",dp:5,fuel:80,cargo:40,crew:100,burn:10,supply_use:4,role:["combat"],description:"Combat frigate. Patrol ship with decent armament."},
-  {id:"ox",name:"Ox",faction:"Independent",hull_size:"frigate",dp:4,fuel:50,cargo:30,crew:40,burn:16,supply_use:3,role:["exploration","trade"],description:"Tug. Increases fleet burn speed significantly."}
-];
-
-const COMMUNITY_FLEETS = [
-  {id:"fleet_001",name:"Iron Curtain",author:"Cmdr_Vega",description:"Heavy assault fleet built around Onslaught capital support. Slow but nearly impossible to break through.",objective:"combat",ships:[{id:"onslaught",count:1},{id:"champion",count:2},{id:"hammerhead",count:3},{id:"lasher",count:4}],created:"2024-03-15"},
-  {id:"fleet_002",name:"Ghost Protocol",author:"PhaseRunner",description:"Full phase fleet. Extremely fast and evasive. Requires skilled officers and high CR maintenance.",objective:"combat",ships:[{id:"aurora",count:1},{id:"medusa",count:2},{id:"tempest",count:4}],created:"2024-02-28"},
-  {id:"fleet_003",name:"Deep Space Survey",author:"NexusExplorer",description:"Long-range exploration fleet with maximum fuel and cargo capacity. Built for the outer reaches.",objective:"exploration",ships:[{id:"prometheus",count:2},{id:"venture",count:1},{id:"shepherd",count:2},{id:"wolf",count:2},{id:"ox",count:1}],created:"2024-04-01"}
-];
-
+// ==================== GLOBAL STATE ====================
+let SHIPS = [];
+let FACTIONS = [];
 let fleet = {};
 let currentCode = '';
 let importedFleetData = null;
@@ -977,13 +945,421 @@ let filterSize = 'all';
 let filterSearch = '';
 
 // ==================== INIT ====================
-window.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('sb-shipcount').textContent = `SHIPS LOADED: ${SHIPS.length}`;
-  buildFactionFilters();
+async function initApp() {
+  try {
+    // Load ships from ships.json
+    const shipsRes = await fetch('ships.json');
+    SHIPS = await shipsRes.json();
+    
+    // Load factions from factions.json
+    const factionsRes = await fetch('factions.json');
+    FACTIONS = await factionsRes.json();
+    
+    document.getElementById('sb-shipcount').textContent = `SHIPS LOADED: ${SHIPS.length}`;
+    buildFactionFilters();
+    renderShipList();
+    console.log(`✓ FleetHub initialized - ${SHIPS.length} ships loaded, ${FACTIONS.length} factions`);
+  } catch (err) {
+    console.error('Failed to load data:', err);
+    window.toast('Error loading ship database', true);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+
+// ==================== FACTION FILTERS ====================
+function buildFactionFilters() {
+  const container = document.getElementById('faction-filters');
+  container.innerHTML = '';
+  
+  // Add "All" button
+  const allBtn = document.createElement('button');
+  allBtn.className = 'filter-btn active';
+  allBtn.textContent = 'All Factions';
+  allBtn.data = 'faction-all';
+  allBtn.onclick = () => window.filterFaction(allBtn, 'all');
+  container.appendChild(allBtn);
+  
+  // Add faction buttons
+  const factionSet = new Set(SHIPS.map(s => s.faction));
+  Array.from(factionSet).sort().forEach(faction => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = faction;
+    btn.dataset.faction = faction;
+    btn.onclick = () => window.filterFaction(btn, faction);
+    container.appendChild(btn);
+  });
+}
+
+window.filterFaction = function(el, faction) {
+  document.querySelectorAll('#faction-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterFaction = faction;
+  window.filterShips();
+};
+
+window.filterSize = function(el) {
+  document.querySelectorAll('[data-size]').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  filterSize = el.dataset.size;
+  window.filterShips();
+};
+
+// ==================== SHIP FILTERING & RENDERING ====================
+window.filterShips = function() {
+  filterSearch = document.getElementById('ship-search').value.toLowerCase();
   renderShipList();
-  loadCommunityFleets();
-  console.log('✓ FleetHub initialized - ' + SHIPS.length + ' ships loaded');
-});
+};
+
+function renderShipList() {
+  const container = document.getElementById('ship-list');
+  container.innerHTML = '';
+  
+  let filtered = SHIPS.filter(ship => {
+    const matchFaction = filterFaction === 'all' || ship.faction === filterFaction;
+    const matchSize = filterSize === 'all' || ship.hull_size === filterSize;
+    const matchSearch = filterSearch === '' || ship.name.toLowerCase().includes(filterSearch) || ship.id.includes(filterSearch);
+    return matchFaction && matchSize && matchSearch;
+  });
+  
+  document.getElementById('visible-count').textContent = `${filtered.length}/${SHIPS.length}`;
+  
+  filtered.forEach(ship => {
+    const item = document.createElement('div');
+    item.className = 'ship-item';
+    item.innerHTML = `
+      <div class="ship-item-left">
+        <div class="ship-name">${ship.name}</div>
+        <div class="ship-meta">
+          <span class="ship-faction">${ship.faction}</span>
+          <span class="hull-tag hull-${ship.hull_size}">${ship.hull_size.toUpperCase()}</span>
+        </div>
+      </div>
+      <div class="ship-item-right">
+        <div class="dp-badge">${ship.dp}<br><div class="dp-label">DP</div></div>
+        <button class="add-btn" onclick="window.addShipToFleet('${ship.id}')">+</button>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+// ==================== FLEET MANAGEMENT ====================
+window.addShipToFleet = function(shipId) {
+  const ship = SHIPS.find(s => s.id === shipId);
+  if (!ship) return;
+  
+  if (!fleet[shipId]) {
+    fleet[shipId] = { ship, qty: 0 };
+  }
+  fleet[shipId].qty++;
+  
+  updateFleetDisplay();
+  window.toast(`Added ${ship.name}`);
+};
+
+window.removeShipFromFleet = function(shipId) {
+  if (fleet[shipId]) {
+    if (fleet[shipId].qty > 1) {
+      fleet[shipId].qty--;
+    } else {
+      delete fleet[shipId];
+    }
+  }
+  updateFleetDisplay();
+};
+
+function updateFleetDisplay() {
+  const rosterEl = document.getElementById('fleet-roster');
+  const emptyEl = document.getElementById('fleet-empty');
+  const shipsArray = Object.keys(fleet);
+  
+  if (shipsArray.length === 0) {
+    emptyEl.style.display = 'block';
+    rosterEl.style.display = 'none';
+  } else {
+    emptyEl.style.display = 'none';
+    rosterEl.style.display = 'flex';
+    rosterEl.innerHTML = '';
+    
+    shipsArray.forEach(shipId => {
+      const entry = fleet[shipId];
+      const slot = document.createElement('div');
+      slot.className = 'fleet-slot';
+      slot.innerHTML = `
+        <div style="flex:1;">
+          <div class="fleet-slot-name">${entry.ship.name}</div>
+          <div style="font-size:10px;color:var(--text3);">${entry.ship.faction}</div>
+        </div>
+        <div class="fleet-slot-dp">${entry.ship.dp * entry.qty} DP</div>
+        <div class="qty-control">
+          <button class="qty-btn" onclick="window.removeShipFromFleet('${shipId}')">−</button>
+          <div class="qty-num">${entry.qty}</div>
+          <button class="qty-btn" onclick="window.addShipToFleet('${shipId}')">+</button>
+        </div>
+      `;
+      rosterEl.appendChild(slot);
+    });
+  }
+  
+  updateStats();
+  updateCompositionPills();
+  updateFleetCount();
+}
+
+function updateStats() {
+  let dp = 0, fuel = 0, cargo = 0, crew = 0, supply = 0, burn = 0;
+  let shipCount = 0;
+  
+  Object.values(fleet).forEach(entry => {
+    const q = entry.qty;
+    dp += entry.ship.dp * q;
+    fuel += entry.ship.fuel * q;
+    cargo += entry.ship.cargo * q;
+    crew += entry.ship.crew * q;
+    supply += entry.ship.supply_use * q;
+    burn += entry.ship.burn * q;
+    shipCount += q;
+  });
+  
+  document.getElementById('stat-dp').textContent = dp;
+  document.getElementById('stat-fuel').textContent = fuel;
+  document.getElementById('stat-cargo').textContent = cargo;
+  document.getElementById('stat-crew').textContent = crew;
+  document.getElementById('stat-supply').textContent = supply;
+  document.getElementById('stat-ships').textContent = shipCount;
+  
+  if (shipCount > 0) {
+    burn = Math.floor(burn / shipCount);
+    document.getElementById('stat-burn').textContent = burn;
+  } else {
+    document.getElementById('stat-burn').textContent = '—';
+  }
+  
+  const barWidth = Math.min((dp / 500) * 100, 100);
+  document.getElementById('bar-dp').style.width = barWidth + '%';
+}
+
+function updateCompositionPills() {
+  const pillsEl = document.getElementById('composition-pills');
+  pillsEl.innerHTML = '';
+  
+  const comp = { capital: 0, cruiser: 0, destroyer: 0, frigate: 0 };
+  Object.values(fleet).forEach(entry => {
+    comp[entry.ship.hull_size] += entry.qty;
+  });
+  
+  Object.entries(comp).forEach(([type, count]) => {
+    if (count > 0) {
+      const pill = document.createElement('div');
+      pill.className = `comp-pill ${type}`;
+      pill.textContent = `${count}× ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      pillsEl.appendChild(pill);
+    }
+  });
+}
+
+function updateFleetCount() {
+  const count = Object.values(fleet).reduce((sum, e) => sum + e.qty, 0);
+  document.getElementById('fleet-ship-count').textContent = `${count} ship${count !== 1 ? 's' : ''}`;
+}
+
+window.clearFleet = function() {
+  if (Object.keys(fleet).length === 0 || confirm('Clear fleet? This cannot be undone.')) {
+    fleet = {};
+    updateFleetDisplay();
+  }
+};
+
+// ==================== CODE GENERATION ====================
+window.generateCode = function() {
+  const shipArray = Object.entries(fleet).map(([id, entry]) => ({
+    id,
+    qty: entry.qty
+  }));
+  
+  const data = {
+    v: 2,
+    name: document.getElementById('fleet-name').value || 'Unnamed Fleet',
+    author: document.getElementById('fleet-author').value || 'Unknown',
+    desc: document.getElementById('fleet-desc').value || '',
+    obj: document.getElementById('fleet-obj').value || '',
+    ships: shipArray
+  };
+  
+  const json = JSON.stringify(data);
+  const encoded = btoa(json);
+  currentCode = encoded;
+  
+  document.getElementById('code-preview').textContent = encoded;
+  document.getElementById('code-preview').classList.remove('empty');
+  document.getElementById('fleet-warning').classList.remove('visible');
+  
+  window.toast('Fleet code generated');
+};
+
+window.copyCode = function() {
+  if (!currentCode) {
+    window.generateCode();
+  }
+  navigator.clipboard.writeText(currentCode);
+  window.toast('Code copied to clipboard');
+};
+
+window.copyCodeShare = function() {
+  const code = document.getElementById('share-code-display').textContent;
+  if (code.includes('[')) {
+    window.toast('Generate a code first', true);
+    return;
+  }
+  navigator.clipboard.writeText(code);
+  window.toast('Code copied to clipboard');
+};
+
+function syncShareView() {
+  const codeDisplay = document.getElementById('share-code-display');
+  if (currentCode) {
+    codeDisplay.textContent = currentCode;
+    codeDisplay.classList.remove('empty');
+  } else {
+    codeDisplay.textContent = '[ no fleet built yet ]';
+    codeDisplay.classList.add('empty');
+  }
+  
+  const shipCount = Object.values(fleet).reduce((sum, e) => sum + e.qty, 0);
+  let dp = 0;
+  Object.values(fleet).forEach(e => dp += e.ship.dp * e.qty);
+  
+  document.getElementById('share-meta').textContent = shipCount > 0 
+    ? `${shipCount} ships • ${dp} DP`
+    : '—';
+}
+
+// ==================== EXPORT ====================
+window.exportJSON = function() {
+  const data = {
+    name: document.getElementById('fleet-name').value || 'Unnamed Fleet',
+    author: document.getElementById('fleet-author').value || 'Unknown',
+    description: document.getElementById('fleet-desc').value || '',
+    objective: document.getElementById('fleet-obj').value || '',
+    timestamp: new Date().toISOString(),
+    ships: Object.entries(fleet).map(([id, entry]) => ({
+      id,
+      name: entry.ship.name,
+      qty: entry.qty,
+      dp_per_ship: entry.ship.dp
+    }))
+  };
+  
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `fleet_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  window.toast('Fleet exported as JSON');
+};
+
+// ==================== IMPORT ====================
+window.importFleet = function() {
+  const code = document.getElementById('import-input').value.trim();
+  if (!code) {
+    window.toast('Paste a fleet code first', true);
+    return;
+  }
+  
+  try {
+    const json = atob(code);
+    importedFleetData = JSON.parse(json);
+    
+    if (!importedFleetData.ships || !Array.isArray(importedFleetData.ships)) {
+      throw new Error('Invalid fleet format');
+    }
+    
+    renderImportedFleet();
+    window.toast('Fleet imported successfully');
+  } catch (err) {
+    window.toast('Invalid fleet code', true);
+    console.error(err);
+  }
+};
+
+function renderImportedFleet() {
+  if (!importedFleetData) return;
+  
+  document.getElementById('imported-name').textContent = importedFleetData.name || 'Unknown';
+  document.getElementById('imported-meta').textContent = 
+    `by ${importedFleetData.author || 'Unknown'} • ${importedFleetData.obj || 'No objective'}`;
+  document.getElementById('imported-desc').textContent = importedFleetData.desc || '';
+  
+  const roster = document.getElementById('imported-roster');
+  roster.innerHTML = '';
+  
+  let dp = 0, fuel = 0, cargo = 0, crew = 0, supply = 0;
+  let shipCount = 0;
+  
+  importedFleetData.ships.forEach(ship => {
+    const shipData = SHIPS.find(s => s.id === ship.id);
+    if (!shipData) return;
+    
+    const q = ship.qty;
+    dp += shipData.dp * q;
+    fuel += shipData.fuel * q;
+    cargo += shipData.cargo * q;
+    crew += shipData.crew * q;
+    supply += shipData.supply_use * q;
+    shipCount += q;
+    
+    const slot = document.createElement('div');
+    slot.className = 'fleet-slot';
+    slot.innerHTML = `
+      <div style="flex:1;">
+        <div class="fleet-slot-name">${shipData.name}</div>
+        <div style="font-size:10px;color:var(--text3);">${shipData.faction}</div>
+      </div>
+      <div class="fleet-slot-dp">${shipData.dp * q} DP</div>
+      <div class="qty-control">
+        <div class="qty-num">×${q}</div>
+      </div>
+    `;
+    roster.appendChild(slot);
+  });
+  
+  document.getElementById('imp-dp').textContent = dp;
+  document.getElementById('imp-ships').textContent = shipCount;
+  document.getElementById('imp-fuel').textContent = fuel;
+  document.getElementById('imp-cargo').textContent = cargo;
+  document.getElementById('imp-crew').textContent = crew;
+  document.getElementById('imp-supply').textContent = supply;
+  document.getElementById('imp-burn').textContent = '—';
+  
+  document.getElementById('imported-fleet').classList.add('visible');
+}
+
+window.loadImportedIntoBuilder = function() {
+  if (!importedFleetData) return;
+  
+  fleet = {};
+  importedFleetData.ships.forEach(ship => {
+    fleet[ship.id] = {
+      ship: SHIPS.find(s => s.id === ship.id),
+      qty: ship.qty
+    };
+  });
+  
+  document.getElementById('fleet-name').value = importedFleetData.name || '';
+  document.getElementById('fleet-author').value = importedFleetData.author || '';
+  document.getElementById('fleet-desc').value = importedFleetData.desc || '';
+  document.getElementById('fleet-obj').value = importedFleetData.obj || '';
+  
+  window.showView('builder');
+  updateFleetDisplay();
+  window.toast('Fleet loaded into builder');
+};
 
 // ==================== UI ====================
 window.showView = function(v) {
@@ -998,413 +1374,9 @@ window.toast = function(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show' + (isError ? ' error' : '');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+  setTimeout(() => t.classList.remove('show'), 3000);
 };
-
-// ==================== SHIP LIST ====================
-function buildFactionFilters() {
-  const factions = [...new Set(SHIPS.map(s => s.faction))].sort();
-  const container = document.getElementById('faction-filters');
-  let html = `<button class="filter-btn active" data-faction="all" onclick="filterFactionBtn(this)">All Factions</button>`;
-  factions.forEach(f => {
-    html += `<button class="filter-btn" data-faction="${f}" onclick="filterFactionBtn(this)">${f}</button>`;
-  });
-  container.innerHTML = html;
-}
-
-window.filterFactionBtn = function(btn) {
-  document.querySelectorAll('#faction-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  filterFaction = btn.dataset.faction;
-  renderShipList();
-};
-
-window.filterSize = function(btn) {
-  document.querySelectorAll('.filter-btn[data-size]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  filterSize = btn.dataset.size;
-  renderShipList();
-};
-
-window.filterShips = function() {
-  filterSearch = document.getElementById('ship-search').value.toLowerCase();
-  renderShipList();
-};
-
-function renderShipList() {
-  const filtered = SHIPS.filter(s => {
-    if (filterFaction !== 'all' && s.faction !== filterFaction) return false;
-    if (filterSize !== 'all' && s.hull_size !== filterSize) return false;
-    if (filterSearch && !s.name.toLowerCase().includes(filterSearch) && !s.faction.toLowerCase().includes(filterSearch)) return false;
-    return true;
-  });
-
-  document.getElementById('visible-count').textContent = `${filtered.length}/${SHIPS.length}`;
-
-  const sizeOrder = { capital: 0, cruiser: 1, destroyer: 2, frigate: 3 };
-  filtered.sort((a, b) => (sizeOrder[a.hull_size] - sizeOrder[b.hull_size]) || a.name.localeCompare(b.name));
-
-  const container = document.getElementById('ship-list');
-  if (!filtered.length) {
-    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;">NO SHIPS FOUND</div>`;
-    return;
-  }
-
-  container.innerHTML = filtered.map(s => `
-    <div class="ship-item" onclick="window.addShip('${s.id}')" title="${s.description}">
-      <div class="ship-item-left">
-        <div class="ship-name">${s.name}</div>
-        <div class="ship-meta">
-          <span class="hull-tag hull-${s.hull_size}">${s.hull_size}</span>
-          <span class="ship-faction">${s.faction}</span>
-        </div>
-      </div>
-      <div class="ship-item-right">
-        <div>
-          <div class="dp-badge">${s.dp}</div>
-          <div class="dp-label">DP</div>
-        </div>
-        <div class="add-btn" title="Add to fleet">+</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ==================== FLEET MANAGEMENT ====================
-window.addShip = function(shipId) {
-  fleet[shipId] = (fleet[shipId] || 0) + 1;
-  updateFleetDisplay();
-};
-
-window.removeShip = function(shipId) {
-  if (fleet[shipId]) {
-    fleet[shipId]--;
-    if (fleet[shipId] === 0) delete fleet[shipId];
-  }
-  updateFleetDisplay();
-};
-
-function updateFleetDisplay() {
-  const roster = document.getElementById('fleet-roster');
-  const empty = document.getElementById('fleet-empty');
-  const shipIds = Object.keys(fleet);
-
-  if (shipIds.length === 0) {
-    roster.style.display = 'none';
-    empty.style.display = 'block';
-    document.getElementById('fleet-ship-count').textContent = '0 ships';
-    updateStats();
-    return;
-  }
-
-  roster.style.display = 'flex';
-  empty.style.display = 'none';
-
-  roster.innerHTML = shipIds.map(id => {
-    const ship = SHIPS.find(s => s.id === id);
-    const count = fleet[id];
-    return `
-      <div class="fleet-slot">
-        <div class="fleet-slot-name">${ship.name}</div>
-        <div class="fleet-slot-dp">${ship.dp * count} DP</div>
-        <div class="qty-control">
-          <button class="qty-btn remove" onclick="window.removeShip('${id}')">−</button>
-          <span class="qty-num">${count}</span>
-          <button class="qty-btn" onclick="window.addShip('${id}')">+</button>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('fleet-ship-count').textContent = `${shipIds.length} ships`;
-  updateStats();
-  updateCompositionPills();
-}
-
-function updateCompositionPills() {
-  const pills = document.getElementById('composition-pills');
-  const composition = { capital: 0, cruiser: 0, destroyer: 0, frigate: 0 };
-  
-  Object.keys(fleet).forEach(id => {
-    const ship = SHIPS.find(s => s.id === id);
-    if (ship) composition[ship.hull_size] += fleet[id];
-  });
-
-  pills.innerHTML = Object.entries(composition)
-    .filter(([,count]) => count > 0)
-    .map(([size, count]) => `<div class="comp-pill ${size}">${count} ${size}</div>`)
-    .join('');
-}
-
-function updateStats() {
-  let totalDP = 0, totalFuel = 0, totalCargo = 0, totalCrew = 0, totalSupply = 0;
-  let maxBurn = 0, minBurn = Infinity;
-
-  Object.keys(fleet).forEach(id => {
-    const ship = SHIPS.find(s => s.id === id);
-    const count = fleet[id];
-    if (ship) {
-      totalDP += ship.dp * count;
-      totalFuel += ship.fuel * count;
-      totalCargo += ship.cargo * count;
-      totalCrew += ship.crew * count;
-      totalSupply += ship.supply_use * count;
-      maxBurn = Math.max(maxBurn, ship.burn);
-      minBurn = Math.min(minBurn, ship.burn);
-    }
-  });
-
-  document.getElementById('stat-dp').textContent = totalDP;
-  document.getElementById('bar-dp').style.width = Math.min(100, (totalDP / 120) * 100) + '%';
-  document.getElementById('stat-ships').textContent = Object.keys(fleet).reduce((sum, id) => sum + fleet[id], 0);
-  document.getElementById('stat-fuel').textContent = totalFuel;
-  document.getElementById('stat-cargo').textContent = totalCargo;
-  document.getElementById('stat-crew').textContent = totalCrew;
-  document.getElementById('stat-supply').textContent = totalSupply;
-  document.getElementById('stat-burn').textContent = Object.keys(fleet).length ? minBurn === Infinity ? '—' : minBurn : '—';
-
-  const hasFleet = Object.keys(fleet).length > 0;
-  document.getElementById('fleet-warning').classList.toggle('visible', !hasFleet);
-}
-
-window.clearFleet = function() {
-  if (Object.keys(fleet).length === 0) return;
-  if (!confirm('Clear entire fleet? This cannot be undone.')) return;
-  fleet = {};
-  document.getElementById('fleet-name').value = '';
-  document.getElementById('fleet-author').value = '';
-  document.getElementById('fleet-desc').value = '';
-  document.getElementById('fleet-obj').value = '';
-  updateFleetDisplay();
-  currentCode = '';
-  document.getElementById('code-preview').textContent = '[ generate code to share ]';
-  document.getElementById('code-preview').classList.add('empty');
-  window.toast('Fleet cleared');
-};
-
-// ==================== COMMUNITY FLEETS ====================
-function loadCommunityFleets() {
-  const grid = document.getElementById('community-grid');
-  
-  if (COMMUNITY_FLEETS.length === 0) {
-    grid.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text3);font-family:var(--font-mono);grid-column:1/-1;">No community fleets yet.</div>';
-    return;
-  }
-
-  grid.innerHTML = COMMUNITY_FLEETS.map(f => {
-    let totalDP = 0, totalShips = 0;
-    (f.ships || []).forEach(({ id, count }) => {
-      const ship = SHIPS.find(s => s.id === id);
-      if (ship) {
-        totalDP += ship.dp * count;
-        totalShips += count;
-      }
-    });
-
-    return `
-      <div class="fleet-card" onclick="window.importCommunityFleet('${f.id}')">
-        <div class="fleet-card-name">${f.name}</div>
-        <div class="fleet-card-author">By ${f.author}</div>
-        <div class="fleet-card-desc">${f.description}</div>
-        <div class="fleet-card-meta">
-          <span class="fleet-card-badge">${f.objective}</span>
-          <span class="fleet-card-badge">${totalDP} DP</span>
-          <span class="fleet-card-badge">${totalShips} ships</span>
-        </div>
-        <button class="btn primary fleet-card-button" onclick="event.stopPropagation(); window.importCommunityFleet('${f.id}');">⊕ Load Fleet</button>
-      </div>
-    `;
-  }).join('');
-}
-
-window.importCommunityFleet = function(fleetId) {
-  const fleetData = COMMUNITY_FLEETS.find(f => f.id === fleetId);
-  if (!fleetData) return;
-
-  fleet = {};
-  (fleetData.ships || []).forEach(({ id, count }) => {
-    fleet[id] = count;
-  });
-
-  document.getElementById('fleet-name').value = fleetData.name || '';
-  document.getElementById('fleet-author').value = fleetData.author || '';
-  document.getElementById('fleet-desc').value = fleetData.description || '';
-  document.getElementById('fleet-obj').value = fleetData.objective || '';
-
-  updateFleetDisplay();
-  window.showView('builder');
-  window.toast('Fleet loaded into builder!');
-};
-
-// ==================== EXPORT & IMPORT ====================
-window.generateCode = function() {
-  if (Object.keys(fleet).length === 0) {
-    window.toast('Fleet is empty', true);
-    return;
-  }
-  const name = document.getElementById('fleet-name').value || 'Unnamed Fleet';
-  const author = document.getElementById('fleet-author').value || 'Anonymous';
-  const desc = document.getElementById('fleet-desc').value || '';
-  const obj = document.getElementById('fleet-obj').value || '';
-  
-  const data = {
-    name, author, desc, obj,
-    ships: Object.entries(fleet).map(([id, count]) => ({ id, count }))
-  };
-  
-  currentCode = 'FH1_' + btoa(JSON.stringify(data)) + '_' + generateChecksum(data);
-  
-  document.getElementById('code-preview').textContent = currentCode;
-  document.getElementById('code-preview').classList.remove('empty');
-  window.toast('Fleet code generated!');
-};
-
-function generateChecksum(data) {
-  let hash = 0;
-  const str = JSON.stringify(data);
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(16).substring(0, 4);
-}
-
-window.copyCode = function() {
-  if (!currentCode) {
-    window.toast('Generate a code first', true);
-    return;
-  }
-  navigator.clipboard.writeText(currentCode).then(() => {
-    window.toast('Copied to clipboard!');
-  });
-};
-
-window.copyCodeShare = function() {
-  window.copyCode();
-};
-
-window.exportJSON = function() {
-  if (Object.keys(fleet).length === 0) {
-    window.toast('Fleet is empty', true);
-    return;
-  }
-  const name = document.getElementById('fleet-name').value || 'fleet';
-  const data = {
-    name,
-    author: document.getElementById('fleet-author').value,
-    description: document.getElementById('fleet-desc').value,
-    objective: document.getElementById('fleet-obj').value,
-    ships: Object.entries(fleet).map(([id, count]) => ({ id, count })),
-    created: new Date().toISOString().split('T')[0]
-  };
-  
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = name.replace(/\s+/g, '_') + '.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  window.toast('Fleet exported as JSON!');
-};
-
-window.importFleet = function() {
-  const code = document.getElementById('import-input').value.trim();
-  if (!code) {
-    window.toast('Paste a fleet code', true);
-    return;
-  }
-  
-  try {
-    if (!code.startsWith('FH1_')) throw new Error('Invalid format');
-    const parts = code.substring(4).split('_');
-    const payload = parts.slice(0, -1).join('_');
-    const data = JSON.parse(atob(payload));
-    
-    importedFleetData = data;
-    displayImportedFleet(data);
-  } catch (e) {
-    window.toast('Invalid fleet code', true);
-  }
-};
-
-function displayImportedFleet(data) {
-  const container = document.getElementById('imported-fleet');
-  
-  document.getElementById('imported-name').textContent = data.name;
-  document.getElementById('imported-meta').textContent = `By ${data.author} • ${data.obj || 'Unspecified'}`;
-  document.getElementById('imported-desc').textContent = data.desc;
-  
-  let totalDP = 0, totalFuel = 0, totalCargo = 0, totalCrew = 0, totalSupply = 0;
-  let minBurn = Infinity;
-  
-  const roster = document.getElementById('imported-roster');
-  roster.innerHTML = (data.ships || []).map(({ id, count }) => {
-    const ship = SHIPS.find(s => s.id === id);
-    if (!ship) return '';
-    totalDP += ship.dp * count;
-    totalFuel += ship.fuel * count;
-    totalCargo += ship.cargo * count;
-    totalCrew += ship.crew * count;
-    totalSupply += ship.supply_use * count;
-    minBurn = Math.min(minBurn, ship.burn);
-    return `
-      <div class="fleet-slot">
-        <div class="fleet-slot-name">${ship.name}</div>
-        <div class="fleet-slot-dp">${ship.dp * count} DP</div>
-        <div class="qty-control">
-          <span class="qty-num">×${count}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  document.getElementById('imp-dp').textContent = totalDP;
-  document.getElementById('imp-ships').textContent = (data.ships || []).reduce((s, { count }) => s + count, 0);
-  document.getElementById('imp-fuel').textContent = totalFuel;
-  document.getElementById('imp-cargo').textContent = totalCargo;
-  document.getElementById('imp-crew').textContent = totalCrew;
-  document.getElementById('imp-supply').textContent = totalSupply;
-  document.getElementById('imp-burn').textContent = minBurn === Infinity ? '—' : minBurn;
-  
-  container.classList.add('visible');
-  window.toast('Fleet loaded!');
-}
-
-window.loadImportedIntoBuilder = function() {
-  if (!importedFleetData) return;
-  
-  fleet = {};
-  (importedFleetData.ships || []).forEach(({ id, count }) => {
-    fleet[id] = count;
-  });
-  
-  document.getElementById('fleet-name').value = importedFleetData.name || '';
-  document.getElementById('fleet-author').value = importedFleetData.author || '';
-  document.getElementById('fleet-desc').value = importedFleetData.desc || '';
-  document.getElementById('fleet-obj').value = importedFleetData.obj || '';
-  
-  updateFleetDisplay();
-  window.showView('builder');
-  window.toast('Fleet loaded into builder!');
-};
-
-function syncShareView() {
-  const display = document.getElementById('share-code-display');
-  if (currentCode) {
-    display.textContent = currentCode;
-    display.classList.remove('empty');
-    const shipCount = Object.keys(fleet).reduce((s, id) => s + fleet[id], 0);
-    document.getElementById('share-meta').textContent = `${Object.keys(fleet).length} hull types • ${shipCount} total ships`;
-  } else {
-    display.textContent = '[ no fleet built yet ]';
-    display.classList.add('empty');
-    document.getElementById('share-meta').textContent = '—';
-  }
-}
-
-window.syncShareView = syncShareView;
 </script>
+
 </body>
 </html>
