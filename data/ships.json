@@ -241,7 +241,7 @@
     "id": "shepherd",
     "name": "Shepherd",
     "faction": "Independent",
-    "hull_size": "destroyer",
+    "hull_size": "frigate",
     "dp": 4,
     "fuel": 80,
     "cargo": 80,
