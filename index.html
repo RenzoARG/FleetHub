@@ -151,7 +151,7 @@ main { max-width: 1400px; margin: 0 auto; padding: 24px; }
 /* BUILDER LAYOUT */
 .builder-grid {
   display: grid;
-  grid-template-columns: 340px 1fr 280px;
+  grid-template-columns: 380px 1fr 280px;
   gap: 16px;
   align-items: start;
 }
@@ -631,13 +631,53 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 }
 .fleet-warning.visible { display: block; }
 
+/* SHIP DETAIL PANEL */
+.ship-detail-panel {
+  margin-top: 16px;
+  grid-column: span 3;
+  display: none;
+}
+.ship-detail-panel.visible { display: block; }
+.ship-detail-content {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.ship-detail-image {
+  flex: 0 0 200px;
+  text-align: center;
+}
+.ship-detail-image img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  background: var(--bg3);
+  border-radius: 4px;
+  padding: 8px;
+}
+.ship-detail-info {
+  flex: 1;
+}
+.ship-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ship-detail-description {
+  color: var(--text2);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1100px) {
-  .builder-grid { grid-template-columns: 300px 1fr 260px; }
+  .builder-grid { grid-template-columns: 340px 1fr 260px; }
 }
 @media (max-width: 900px) {
   .builder-grid { grid-template-columns: 1fr; }
   .fleet-view-grid { grid-template-columns: 1fr; }
+  .ship-detail-panel { grid-column: span 1; }
 }
 </style>
 </head>
@@ -659,7 +699,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 </header>
 
 <div class="statusbar">
-  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.2</span></div>
+  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.3</span></div>
   <div class="sb-item">STARSECTOR 0.97a</div>
   <div class="sb-item" id="sb-shipcount">SHIPS LOADED: —</div>
   <div class="sb-item">VANILLA ONLY</div>
@@ -798,6 +838,15 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
       </div>
     </div>
 
+  </div>
+
+  <!-- SHIP DETAIL PANEL -->
+  <div class="panel ship-detail-panel" id="ship-detail-panel">
+    <div class="panel-header">
+      <span class="panel-title">// Ship Details</span>
+      <button class="qty-btn" onclick="window.closeShipDetail()" style="font-size:14px;">✕</button>
+    </div>
+    <div class="panel-body" id="ship-detail-content"></div>
   </div>
 </div>
 
@@ -944,14 +993,60 @@ let filterFaction = 'all';
 let filterSize = 'all';
 let filterSearch = '';
 
+// ==================== SHIP IMAGES ====================
+function getShipImageUrl(shipId) {
+    return `images/ships/${shipId}.png`;
+}
+
+// ==================== SHIP DETAIL PANEL ====================
+let currentSelectedShip = null;
+
+function showShipDetail(shipId) {
+    const ship = SHIPS.find(s => s.id === shipId);
+    if (!ship) return;
+    currentSelectedShip = ship;
+    
+    const panel = document.getElementById('ship-detail-panel');
+    const content = document.getElementById('ship-detail-content');
+    
+    content.innerHTML = `
+        <div class="ship-detail-content">
+            <div class="ship-detail-image">
+                <img src="${getShipImageUrl(ship.id)}" 
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23e8a838\' stroke-width=\'1\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'%3E%3C/path%3E%3C/svg%3E'">
+                <div class="stat-label" style="margin-top:8px;">${ship.hull_size.toUpperCase()}</div>
+            </div>
+            <div class="ship-detail-info">
+                <div style="font-family:var(--font-ui); font-size:20px; color:var(--accent);">${ship.name}</div>
+                <div style="color:var(--text2); margin-bottom:12px;">${ship.faction}</div>
+                <div class="ship-detail-stats">
+                    <div><div class="stat-label">DP</div><div class="stat-value" style="font-size:16px;">${ship.dp}</div></div>
+                    <div><div class="stat-label">Burn</div><div class="stat-value" style="font-size:16px;">${ship.burn}</div></div>
+                    <div><div class="stat-label">Fuel</div><div class="stat-value" style="font-size:16px;">${ship.fuel}</div></div>
+                    <div><div class="stat-label">Cargo</div><div class="stat-value" style="font-size:16px;">${ship.cargo}</div></div>
+                </div>
+                <div class="ship-detail-description">
+                    <div class="stat-label">Description</div>
+                    <div>${ship.description || 'No description available.'}</div>
+                </div>
+                <button class="btn primary" onclick="window.addShipToFleet('${ship.id}'); window.showShipDetail('${ship.id}');">+ Add to Fleet</button>
+            </div>
+        </div>
+    `;
+    panel.classList.add('visible');
+}
+
+function closeShipDetail() {
+    document.getElementById('ship-detail-panel').classList.remove('visible');
+    currentSelectedShip = null;
+}
+
 // ==================== INIT ====================
 async function initApp() {
   try {
-    // Load ships from ships.json
     const shipsRes = await fetch('ships.json');
     SHIPS = await shipsRes.json();
     
-    // Load factions from factions.json
     const factionsRes = await fetch('factions.json');
     FACTIONS = await factionsRes.json();
     
@@ -972,15 +1067,12 @@ function buildFactionFilters() {
   const container = document.getElementById('faction-filters');
   container.innerHTML = '';
   
-  // Add "All" button
   const allBtn = document.createElement('button');
   allBtn.className = 'filter-btn active';
   allBtn.textContent = 'All Factions';
-  allBtn.data = 'faction-all';
   allBtn.onclick = () => window.filterFaction(allBtn, 'all');
   container.appendChild(allBtn);
   
-  // Add faction buttons
   const factionSet = new Set(SHIPS.map(s => s.faction));
   Array.from(factionSet).sort().forEach(faction => {
     const btn = document.createElement('button');
@@ -1028,17 +1120,23 @@ function renderShipList() {
   filtered.forEach(ship => {
     const item = document.createElement('div');
     item.className = 'ship-item';
+    item.onclick = (e) => { if(e.target.tagName !== 'BUTTON' && !e.target.closest('.add-btn')) showShipDetail(ship.id); };
     item.innerHTML = `
-      <div class="ship-item-left">
-        <div class="ship-name">${ship.name}</div>
-        <div class="ship-meta">
-          <span class="ship-faction">${ship.faction}</span>
-          <span class="hull-tag hull-${ship.hull_size}">${ship.hull_size.toUpperCase()}</span>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <img src="${getShipImageUrl(ship.id)}" 
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%234a5262\' stroke-width=\'1\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'%3E%3C/path%3E%3C/svg%3E'"
+             style="width:40px; height:40px; object-fit:contain; background:var(--bg4); border-radius:3px; padding:4px;">
+        <div class="ship-item-left">
+          <div class="ship-name">${ship.name}</div>
+          <div class="ship-meta">
+            <span class="ship-faction">${ship.faction}</span>
+            <span class="hull-tag hull-${ship.hull_size}">${ship.hull_size.toUpperCase()}</span>
+          </div>
         </div>
       </div>
       <div class="ship-item-right">
         <div class="dp-badge">${ship.dp}<br><div class="dp-label">DP</div></div>
-        <button class="add-btn" onclick="window.addShipToFleet('${ship.id}')">+</button>
+        <button class="add-btn" onclick="event.stopPropagation(); window.addShipToFleet('${ship.id}')">+</button>
       </div>
     `;
     container.appendChild(item);
@@ -1057,6 +1155,11 @@ window.addShipToFleet = function(shipId) {
   
   updateFleetDisplay();
   window.toast(`Added ${ship.name}`);
+  
+  // Si el panel de detalles está abierto, refrescarlo
+  if (currentSelectedShip && currentSelectedShip.id === shipId) {
+    showShipDetail(shipId);
+  }
 };
 
 window.removeShipFromFleet = function(shipId) {
@@ -1169,6 +1272,7 @@ window.clearFleet = function() {
   if (Object.keys(fleet).length === 0 || confirm('Clear fleet? This cannot be undone.')) {
     fleet = {};
     updateFleetDisplay();
+    closeShipDetail();
   }
 };
 
@@ -1345,10 +1449,13 @@ window.loadImportedIntoBuilder = function() {
   
   fleet = {};
   importedFleetData.ships.forEach(ship => {
-    fleet[ship.id] = {
-      ship: SHIPS.find(s => s.id === ship.id),
-      qty: ship.qty
-    };
+    const shipData = SHIPS.find(s => s.id === ship.id);
+    if (shipData) {
+      fleet[ship.id] = {
+        ship: shipData,
+        qty: ship.qty
+      };
+    }
   });
   
   document.getElementById('fleet-name').value = importedFleetData.name || '';
@@ -1368,6 +1475,7 @@ window.showView = function(v) {
   document.getElementById('view-' + v).classList.add('active');
   document.getElementById('nav-' + v).classList.add('active');
   if (v === 'share') syncShareView();
+  if (v === 'builder') closeShipDetail();
 };
 
 window.toast = function(msg, isError = false) {
