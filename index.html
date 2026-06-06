@@ -283,7 +283,7 @@ main { max-width: 1400px; margin: 0 auto; padding: 24px; }
 }
 .add-btn:hover { background: var(--teal-dim); border-color: var(--teal); }
 
-/* FLEET ROSTER */
+/* FLEET ROSTER - MODIFICADO PARA MOSTRAR IMÁGENES */
 .fleet-slot {
   background: var(--bg3);
   border: 1px solid var(--border);
@@ -291,27 +291,63 @@ main { max-width: 1400px; margin: 0 auto; padding: 24px; }
   padding: 10px 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
   animation: slideIn 0.15s ease;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
 }
+.fleet-slot:hover { border-color: var(--border2); background: var(--bg4); }
 @keyframes slideIn { from { opacity:0; transform: translateX(-8px); } to { opacity:1; transform: none; } }
 .fleet-roster { display: flex; flex-direction: column; gap: 4px; max-height: 480px; overflow-y: auto; }
 .fleet-roster::-webkit-scrollbar { width: 4px; }
 .fleet-roster::-webkit-scrollbar-track { background: var(--bg3); }
 .fleet-roster::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-.fleet-slot-name { font-family: var(--font-ui); font-weight: 600; font-size: 13px; color: var(--text); flex: 1; }
-.fleet-slot-dp { font-family: var(--font-mono); font-size: 11px; color: var(--accent); white-space: nowrap; }
-.qty-control { display: flex; align-items: center; gap: 4px; }
+.fleet-slot-image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  background: var(--bg4);
+  border-radius: 3px;
+  padding: 6px;
+  flex-shrink: 0;
+}
+.fleet-slot-info {
+  flex: 1;
+  min-width: 0;
+}
+.fleet-slot-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+}
+.fleet-slot-faction {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+}
+.fleet-slot-dp {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  white-space: nowrap;
+  margin-right: 8px;
+}
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
 .qty-btn {
   background: var(--bg4);
   border: 1px solid var(--border2);
   border-radius: 2px;
   color: var(--text2);
   font-size: 13px;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -322,10 +358,11 @@ main { max-width: 1400px; margin: 0 auto; padding: 24px; }
 .qty-btn.remove:hover { color: var(--red); border-color: var(--red); }
 .qty-num {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text);
-  min-width: 16px;
+  min-width: 24px;
   text-align: center;
+  font-weight: 600;
 }
 
 /* FLEET EMPTY STATE */
@@ -644,7 +681,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
   flex-wrap: wrap;
 }
 .ship-detail-image {
-  flex: 0 0 200px;
+  flex: 0 0 160px;
   text-align: center;
 }
 .ship-detail-image img {
@@ -699,7 +736,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
 </header>
 
 <div class="statusbar">
-  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.3</span></div>
+  <div class="sb-item"><span class="sb-dot"></span><span>FLEETHUB v0.4</span></div>
   <div class="sb-item">STARSECTOR 0.97a</div>
   <div class="sb-item" id="sb-shipcount">SHIPS LOADED: —</div>
   <div class="sb-item">VANILLA ONLY</div>
@@ -742,7 +779,7 @@ textarea.info-input { resize: none; min-height: 60px; font-size: 12px; }
       </div>
     </div>
 
-    <!-- FLEET ROSTER -->
+    <!-- FLEET ROSTER (ahora con imágenes) -->
     <div>
       <div class="panel">
         <div class="panel-header">
@@ -1156,7 +1193,6 @@ window.addShipToFleet = function(shipId) {
   updateFleetDisplay();
   window.toast(`Added ${ship.name}`);
   
-  // Si el panel de detalles está abierto, refrescarlo
   if (currentSelectedShip && currentSelectedShip.id === shipId) {
     showShipDetail(shipId);
   }
@@ -1190,16 +1226,22 @@ function updateFleetDisplay() {
       const entry = fleet[shipId];
       const slot = document.createElement('div');
       slot.className = 'fleet-slot';
+      slot.onclick = (e) => { 
+        if(!e.target.closest('.qty-btn')) showShipDetail(shipId);
+      };
       slot.innerHTML = `
-        <div style="flex:1;">
+        <img class="fleet-slot-image" 
+             src="${getShipImageUrl(shipId)}" 
+             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%234a5262\' stroke-width=\'1\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'%3E%3C/path%3E%3C/svg%3E'">
+        <div class="fleet-slot-info">
           <div class="fleet-slot-name">${entry.ship.name}</div>
-          <div style="font-size:10px;color:var(--text3);">${entry.ship.faction}</div>
+          <div class="fleet-slot-faction">${entry.ship.faction}</div>
         </div>
         <div class="fleet-slot-dp">${entry.ship.dp * entry.qty} DP</div>
         <div class="qty-control">
-          <button class="qty-btn" onclick="window.removeShipFromFleet('${shipId}')">−</button>
+          <button class="qty-btn" onclick="event.stopPropagation(); window.removeShipFromFleet('${shipId}')">−</button>
           <div class="qty-num">${entry.qty}</div>
-          <button class="qty-btn" onclick="window.addShipToFleet('${shipId}')">+</button>
+          <button class="qty-btn" onclick="event.stopPropagation(); window.addShipToFleet('${shipId}')">+</button>
         </div>
       `;
       rosterEl.appendChild(slot);
@@ -1421,9 +1463,12 @@ function renderImportedFleet() {
     const slot = document.createElement('div');
     slot.className = 'fleet-slot';
     slot.innerHTML = `
-      <div style="flex:1;">
+      <img class="fleet-slot-image" 
+           src="${getShipImageUrl(ship.id)}" 
+           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'48\' height=\'48\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%234a5262\' stroke-width=\'1\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'%3E%3C/path%3E%3C/svg%3E'">
+      <div class="fleet-slot-info">
         <div class="fleet-slot-name">${shipData.name}</div>
-        <div style="font-size:10px;color:var(--text3);">${shipData.faction}</div>
+        <div class="fleet-slot-faction">${shipData.faction}</div>
       </div>
       <div class="fleet-slot-dp">${shipData.dp * q} DP</div>
       <div class="qty-control">
