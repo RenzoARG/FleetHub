@@ -1,0 +1,44 @@
+[
+  {
+    "id": "fleet_001",
+    "name": "Iron Curtain",
+    "author": "Cmdr_Vega",
+    "description": "Heavy assault fleet built around Onslaught capital support. Slow but nearly impossible to break through.",
+    "objective": "combat",
+    "ships": [
+      {"id": "onslaught", "count": 1},
+      {"id": "champion", "count": 2},
+      {"id": "hammerhead", "count": 3},
+      {"id": "lasher", "count": 4}
+    ],
+    "created": "2024-03-15"
+  },
+  {
+    "id": "fleet_002",
+    "name": "Ghost Protocol",
+    "author": "PhaseRunner",
+    "description": "Full phase fleet. Extremely fast and evasive. Requires skilled officers and high CR maintenance.",
+    "objective": "combat",
+    "ships": [
+      {"id": "aurora", "count": 1},
+      {"id": "medusa", "count": 2},
+      {"id": "tempest", "count": 4}
+    ],
+    "created": "2024-02-28"
+  },
+  {
+    "id": "fleet_003",
+    "name": "Deep Space Survey",
+    "author": "NexusExplorer",
+    "description": "Long-range exploration fleet with maximum fuel and cargo capacity. Built for the outer reaches.",
+    "objective": "exploration",
+    "ships": [
+      {"id": "prometheus", "count": 2},
+      {"id": "venture", "count": 1},
+      {"id": "shepherd", "count": 2},
+      {"id": "wolf", "count": 2},
+      {"id": "ox", "count": 1}
+    ],
+    "created": "2024-04-01"
+  }
+]
