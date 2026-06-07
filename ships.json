@@ -126,20 +126,6 @@
     "description": "Street-fighting frigate. Tough in close quarters."
   },
   {
-    "id": "brawler_pirate",
-    "name": "Brawler (Pirate)",
-    "faction": "Pirate",
-    "hull_size": "frigate",
-    "dp": 8,
-    "fuel": 70,
-    "cargo": 32,
-    "crew": 130,
-    "burn": 10,
-    "supply_use": 6,
-    "role": ["combat"],
-    "description": "Pirate-modified Brawler. Less armor, more reckless."
-  },
-  {
     "id": "brawler_lions_guard",
     "name": "Brawler (Lion's Guard)",
     "faction": "Sindrian Diktat",
