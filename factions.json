@@ -1,8 +1,62 @@
 [
-  { "id": "hegemony", "name": "Hegemony", "color": "#c8a84b" },
-  { "id": "tri-tachyon", "name": "Tri-Tachyon", "color": "#4bc8c8" },
-  { "id": "persean-league", "name": "Persean League", "color": "#4b8ac8" },
-  { "id": "sindrian-diktat", "name": "Sindrian Diktat", "color": "#c84b4b" },
-  { "id": "independent", "name": "Independent", "color": "#8c8c8c" },
-  { "id": "tritachyon", "name": "Tri-Tachyon", "color": "#4bc8c8" }
+  {
+    "id": "hegemony",
+    "name": "Hegemony",
+    "color": "#c8a84b",
+    "description": "The largest military power in the Sector. Maintains order through force and tradition."
+  },
+  {
+    "id": "tri-tachyon",
+    "name": "Tri-Tachyon",
+    "color": "#4bc8c8",
+    "description": "High-tech corporation. Cutting-edge phase technology and advanced warships."
+  },
+  {
+    "id": "persean-league",
+    "name": "Persean League",
+    "color": "#4b8ac8",
+    "description": "Alliance of independent worlds. Balanced fleet composition."
+  },
+  {
+    "id": "sindrian-diktat",
+    "name": "Sindrian Diktat",
+    "color": "#c84b4b",
+    "description": "Authoritarian regime. Fanatical loyalty and Lion's Guard elite units."
+  },
+  {
+    "id": "independent",
+    "name": "Independent",
+    "color": "#8c8c8c",
+    "description": "Unaffiliated worlds and factions. Common civilian and freighter designs."
+  },
+  {
+    "id": "pirate",
+    "name": "Pirates",
+    "color": "#d44",
+    "description": "Outlaw factions. Modified ships with more guns and less crew."
+  },
+  {
+    "id": "luddic-church",
+    "name": "Luddic Church",
+    "color": "#6b8c42",
+    "description": "Religious organization. Low-tech ships focused on durability and crew."
+  },
+  {
+    "id": "luddic-path",
+    "name": "Luddic Path",
+    "color": "#8c6b42",
+    "description": "Radical Luddite terrorists. Unsafe modifications and reckless tactics."
+  },
+  {
+    "id": "lions-guard",
+    "name": "Lion's Guard",
+    "color": "#c8a84b",
+    "description": "Sindrian Diktat elite forces. Upgraded ship variants with improved systems."
+  },
+  {
+    "id": "xiv",
+    "name": "XIV Legion",
+    "color": "#a8884b",
+    "description": "Ancient Hegemony battle groups. Heavier armor and older, more durable designs."
+  }
 ]
