@@ -1,5 +1,17 @@
 [
+    {
+    "id": "remnant",
+    "name": "Remnant",
+    "color": "#4bc84b",
+    "description": "Autonomous AI warships. Left behind from the First AI War."
+  },
   {
+    "id": "omega",
+    "name": "Omega",
+    "color": "#c84bc8",
+    "description": "Mysterious super-advanced AI. Beyond conventional understanding."
+  },
+{
     "id": "hegemony",
     "name": "Hegemony",
     "color": "#c8a84b",
